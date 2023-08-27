@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Global/Global.cs" type="Script" id=1]
+[ext_resource path="res://Global/GNetwork.cs" type="Script" id=2]
+[ext_resource path="res://Global/GServer.cs" type="Script" id=3]
+[ext_resource path="res://Global/GClient.cs" type="Script" id=4]
+[ext_resource path="res://Global/GLevel.cs" type="Script" id=5]
+
+[node name="Global" type="Node"]
+script = ExtResource( 1 )
+
+[node name="GNetwork" type="Node" parent="."]
+script = ExtResource( 2 )
+
+[node name="GClient" type="Node" parent="GNetwork"]
+script = ExtResource( 4 )
+
+[node name="GServer" type="Node" parent="GNetwork"]
+script = ExtResource( 3 )
+
+[node name="GLevel" type="Node" parent="."]
+script = ExtResource( 5 )
+
+[node name="GMenu" type="Node" parent="."]
