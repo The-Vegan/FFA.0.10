@@ -18,7 +18,7 @@ public class GServer : Node
     {
         try
         {
-            this.server = new HostServer();
+            this.server = new HostServer(global);
             this.server.AbortingLaunch += delegate { global.launchAborted = true; };
             this.server.CountdownWithoutEvents += global.PostCountdownProcedure;
         }

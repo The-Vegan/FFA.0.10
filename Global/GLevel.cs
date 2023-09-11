@@ -6,15 +6,8 @@ using System.Collections.Generic;
 public class GLevel : Node
 {
     private Level map;
-    private Global global;
-    public override void _Ready()
-    {
-        global = GetParent<Global>();
-    }
-
-    public void SetMap(Level lvl) { map = lvl; }
-
-    public void InitPlayerCoordinatesInLevel(Dictionary<byte, Vector2> IDtoPos) { map.InitPlayerCoordinates(IDtoPos); }
+    public override void _Ready(){ }
+    public void SetMap(Level lvl) { GD.Print("[GLevel]Map was Set to " + lvl); map = lvl; }
 
     public void SetEntityPacketOnLevel(byte entityID, short entityPacket, float time)
     {
@@ -27,5 +20,19 @@ public class GLevel : Node
     public void LevelTimerSync(LocalClient sender)
     {
         map?.TimerUpdate(sender);
+    }
+
+    public void SetEntityPacket(byte clientID, short move, float time)
+    {
+        map.SetEntityPacket(clientID, move, time);
+    }
+
+    public void StartLevelTimer()
+    {
+        if(map == null) GD.Print("[GLevel] Level null");
+        if (!map.IsInsideTree())GD.Print("[GLevel] Level Out of tree");
+
+        map.StartTimer();
+
     }
 }

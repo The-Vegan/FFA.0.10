@@ -99,6 +99,7 @@ public class Entity : AnimatedSprite
         this.controllerScene = c;
         this.nameTag = name;
         this.id = givenID;
+
     }
     public void Init(Level level, PackedScene c, byte givenID)
     {
@@ -200,7 +201,7 @@ public class Entity : AnimatedSprite
 
     //GESTION DES MOUVEMENTS
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    protected void AskMovement()
+    protected virtual void AskMovement()
     {
         //if none of movement bits are set to true
         if ((packet & 0b1111) == 0) return;
@@ -316,23 +317,26 @@ public class Entity : AnimatedSprite
     //GESTION DES DEGATS
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
 
-    public void Damaged(Entity attacker, Attack source, short damage)
+    public void Damaged( Attack attack)
     {
-        if (attacker == this) return;
-        if (attacker.team == this.team) return;
-
+        Entity source = attack.GetSource();
+        if (source == this) return;
+        if (source.team == this.team) return;
         //If damage is 0, this will not be called
-        if (!damagedBy.Contains(source))
+        if (!damagedBy.Contains(attack))
         {
 
-            damagedBy.Add(source);
+            damagedBy.Add(attack);
+
+            short damage = attack.posToTiles[pos].GetDamage();
+
             healthPoint -= damage;
 
             damagePlayer.Damage(map.GetTime(), damage);
 
             if (isValidTarget)
             {
-                attacker.HitSomeone((short)((damage << 2) + 5));
+                source.HitSomeone((short)((damage << 2) + 5));
             }
 
         }
@@ -400,14 +404,15 @@ public class Entity : AnimatedSprite
         if (packet == 0) { this.ForcePlay("FailedInput", 0); action = "Idle"; }
 
         MidBeatAnimManager();
-        ResetBeatValues();
+        new System.Threading.Thread(ResetBeatValues).Start();
 
         if (stun != 0) { cooldown = 0; stun--; return; }
         if (cooldown != 0) { cooldown--; return; }
 
     }//End of BeatUpdate
-    private void ResetBeatValues()
+    private async void ResetBeatValues()
     {
+        await ToSignal(GetTree().CreateTimer(0.03f), "timeout");//Prevents frame1 inputs (bad and glitchy)
         timing = -1;
         packet = 0;
         midBeatInterrupted = false;

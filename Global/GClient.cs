@@ -5,6 +5,7 @@ using System;
 public class GClient : Node
 {
     public bool exists => client != null;
+    public byte id => client.clientID;
 
     private LocalClient client;
     private Global global;
@@ -18,6 +19,7 @@ public class GClient : Node
         {
             this.client = new LocalClient(serverIP);
             client.global = this.GetParent().GetParent<Global>();
+            if (client.global == null) throw new Exception("[GClient] WTF, Global is null???");
         }
         catch (Exception e)
         {

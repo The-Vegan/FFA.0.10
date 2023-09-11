@@ -11,6 +11,7 @@ namespace FFA.Empty.Empty.Network.Server
     public class HostServer
     {
         private BaseServer server;
+        private Global global;
 
         private PlayerInfo[] players = new PlayerInfo[16];
 
@@ -22,18 +23,21 @@ namespace FFA.Empty.Empty.Network.Server
 
         public PlayerInfo[] GetPlayer() { return players; }
 
+
         private bool launchAborted = true;
         private ushort allClientAreReady = 0;//Bitfeild
 
-        public Level map;
 
-        public HostServer()
+
+        public HostServer(Global g)
         {
+            global = g;
             server = new BaseServer();
 
             server.ClientConnectedEvent += Connected;
             server.ClientDisconnectedEvent += Disconnected;
             server.DataRecievedEvent += DataRecieved;
+            this.global = global;
         }
         //Packet Constants
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
@@ -87,7 +91,8 @@ namespace FFA.Empty.Empty.Network.Server
                         short move = (short)((data[2] << 8) + data[3]);
 
                         float time = BitConverter.ToSingle(data, 4);
-                        map.SetEntityPacket(clientID, move, time);
+                        
+                        global.gMap.SetEntityPacket(clientID, move, time);
 
                         break;
                     case SET_CHARACTER:
@@ -153,6 +158,7 @@ namespace FFA.Empty.Empty.Network.Server
         {
             for (byte i = 0; i < players.Length; i++)
             {
+                if (server.GetStream(i) == null) GD.Print("[HostServer] stream " + i + " is null");
                 if (s == server.GetStream(i))
                 {
                     allClientAreReady |= (ushort)(1 << i);
@@ -160,11 +166,10 @@ namespace FFA.Empty.Empty.Network.Server
                 }
             }
 
-
             if (allClientAreReady == 0xffff)
             {
                 GD.Print("[HostServer] Starting Level Timer");
-                map.StartTimer();
+                global.gMap.StartLevelTimer();
 
             }
         }

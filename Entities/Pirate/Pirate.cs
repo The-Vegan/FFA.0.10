@@ -25,7 +25,7 @@ public class Pirate : Entity
 
 
 
-        this.animPerBeat = new byte[] { 5 };
+        this.animPerBeat = new byte[] { 6 };
         {//Declare downAtkTiles
 
             List<short[]> frame1 = new List<short[]>
@@ -80,15 +80,19 @@ public class Pirate : Entity
             List<short[]> frame1 = new List<short[]>
             {
                 new short[]
-            { -1 , 0 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000},
+            { -1 , 0 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000}, //<
                 new short[]
-            { -1 , 1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000},
+            { -1 , 1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000}, //<v
                 new short[]
-            {  0 , 1 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000},
+            {  0 , 1 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000}, // v
                 new short[]
-            {  1 , 1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000},
+            {  0 ,-1 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // ^
                 new short[]
-            {  1 , 0 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}
+            {  0 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // O
+                new short[]
+            {  1 , 1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000}, // v>
+                new short[]
+            {  1 , 0 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}  // v>
             };
 
             DOWNMOVEATK.Add(frame1);
@@ -98,15 +102,19 @@ public class Pirate : Entity
             List<short[]> frame1 = new List<short[]>
             {
                 new short[]
-            {  0 ,-1 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000},
+            {  0 ,-1 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000}, //^
                 new short[]
-            { -1 ,-1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000},
+            { -1 ,-1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000}, //<^
                 new short[]
-            { -1 , 0 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000},
+            { -1 , 0 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000}, //<
                 new short[]
-            { -1 , 1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000},
+            {  1 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, //>
                 new short[]
-            {  0 , 1 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}
+            {  0 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // O
+                new short[]
+            { -1 , 1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000}, //<v
+                new short[]
+            {  0 , 1 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}  //v
             };
 
             LEFTMOVEATK.Add(frame1);
@@ -116,15 +124,19 @@ public class Pirate : Entity
             List<short[]> frame1 = new List<short[]>
             {
                 new short[]
-            {  0 , 1 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000},
+            {  0 , 1 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000}, // v
                 new short[]
-            {  1 , 1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000},
+            {  1 , 1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000}, // v>
                 new short[]
-            {  1 , 0 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000},
+            {  1 , 0 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000}, //  >
                 new short[]
-            {  1 ,-1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000},
+            { -1 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, //<
                 new short[]
-            {  0 ,-1 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}
+            {  0 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // O
+                new short[]
+            {  1 ,-1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000}, // ^>
+                new short[]
+            {  0 ,-1 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}  // ^
             };
 
             RIGHTMOVEATK.Add(frame1);
@@ -134,16 +146,21 @@ public class Pirate : Entity
 
             List<short[]> frame1 = new List<short[]>
             {
+            
                 new short[]
-            {  1 , 0 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000},
+            {  1 , 0 , 42 , 0 , 0 , 0 , 0b0_001_000_000_000_000}, //<
                 new short[]
-            {  1 ,-1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000},
+            {  1 ,-1 , 42 , 0 , 0 , 1 , 0b0_001_000_000_000_000}, //<^
                 new short[]
-            {  0 ,-1 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000},
+            {  0 ,-1 , 42 , 0 , 0 , 2 , 0b0_001_000_000_000_000}, // ^
                 new short[]
-            { -1 ,-1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000},
+            {  0 , 1 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // v
                 new short[]
-            { -1 , 0 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}
+            {  0 , 0 , 54 , 0 , 0 , 5 , 0b0_000_000_000_000_000}, // O
+                new short[]
+            { -1 ,-1 , 42 , 0 , 0 , 3 , 0b0_001_000_000_000_000}, // ^>
+                new short[]
+            { -1 , 0 , 42 , 0 , 0 , 4 , 0b0_001_000_000_000_000}  //  >
             };
 
             UPMOVEATK.Add(frame1);
@@ -194,6 +211,18 @@ public class Pirate : Entity
         this.ForcePlay(action + direction, map.GetTime());
     }
 
+    protected override void AskMovement()
+    {
+        if ((packet & 0b1111) == 0) return;
+        if ((packet >> 4) == (packet & 0b1111))//if dash packet
+        {
+            if ((packet & 0b0001) != 0) map.MoveEntity(this, new Vector2[]      { pos + new Vector2( 0, 2), pos + Vector2.Down }, 54);
+            else if ((packet & 0b0010) != 0) map.MoveEntity(this, new Vector2[] { pos + new Vector2(-2, 0), pos + Vector2.Left }, 54);
+            else if ((packet & 0b0100) != 0) map.MoveEntity(this, new Vector2[] { pos + new Vector2( 2, 0), pos + Vector2.Right}, 54);
+            else if ((packet & 0b1000) != 0) map.MoveEntity(this, new Vector2[] { pos + new Vector2( 0,-2), pos + Vector2.Up   }, 54);
+        }
+        else base.AskMovement();
+    }
     protected override void AskAtk()
     {
         if ((packet & 0b1111_0000) == 0) return;

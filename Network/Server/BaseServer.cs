@@ -140,8 +140,6 @@ namespace FFA.Empty.Empty.Network.Server
         public NetworkStream GetStream(byte idx)
         {
             if (streams[idx] != null) return streams[idx].GetStream();
-
-            GD.Print("[BaseServer] Stream " + idx + " is null");
             return null;
         }
     }

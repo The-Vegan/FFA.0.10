@@ -138,8 +138,6 @@ namespace FFA.Empty.Empty.Network.Client
 
                                     IDToCoords.Add(id, new Vector2(x, y));
                                 }
-                                global.gMap.InitPlayerCoordinatesInLevel(IDToCoords);
-
                                 SignalReady();
                             }
                             else throw new NotImplementedException("bruh,  I don't serialize maps yet");

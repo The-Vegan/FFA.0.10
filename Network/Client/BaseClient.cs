@@ -12,7 +12,7 @@ namespace FFA.Empty.Empty.Network.Client
         private bool connected;
         private NetworkStream stream;
 
-        private System.Threading.Mutex sendMustex = new System.Threading.Mutex();
+        private System.Threading.Mutex sendMutex = new System.Threading.Mutex();
 
         //Events
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
@@ -60,11 +60,12 @@ namespace FFA.Empty.Empty.Network.Client
                     stream.Read(buffer, 0, buffer.Length);
                     DataRecievedEvent(this, buffer, stream);
                 }
-                /*catch (Exception e)
+                //catch (Exception e)
                 {
-                    GD.Print("[BaseClient] Disconnecting, Exeption caught : " + e);
-                    connected = false;
-                }*/
+                //    GD.Print("[BaseClient] Disconnecting, Exeption caught : " + e);
+                //    connected = false;
+                }
+                
 
             }
             ClientDisconnectedEvent(this);
@@ -73,7 +74,7 @@ namespace FFA.Empty.Empty.Network.Client
         public void SendDataToServer(byte[] data)
         {
             if (!connected) return;
-            if (sendMustex.WaitOne(100))
+            if (sendMutex.WaitOne(100))
             {
                 if (data.Length > 8_192)
                 {
@@ -84,7 +85,7 @@ namespace FFA.Empty.Empty.Network.Client
                 {
                     stream.Write(data, 0, data.Length);
                 }
-                sendMustex.ReleaseMutex();
+                sendMutex.ReleaseMutex();
             }
             else { GD.Print("[BaseClient] ERR : Failed to send data : Mutex taken"); }
         }

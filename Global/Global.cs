@@ -8,6 +8,7 @@ public partial class Global : Node
 {
     //Level
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    [Export]
     public GLevel gMap;
 
     public byte playerCharID = 0;
@@ -29,10 +30,11 @@ public partial class Global : Node
 
     //Network
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    [Export] 
     public GNetwork Network;
     
 
-    public byte clientID = 0;
+    public byte clientID => Network.client.id;
 
     public bool launchAborted = false;
     public bool isMultiplayer => Network.client.exists;
@@ -51,7 +53,7 @@ public partial class Global : Node
         activeScene = n;
     }
 
-    public bool isPlayingLevel => (activeScene.GetType() == typeof(Level));
+    public bool isPlayingLevel => (activeScene.GetType().IsSubclassOf(typeof(Level)));
     public Level GetLevel() { return activeScene as Level; }
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Active Scene
@@ -61,6 +63,7 @@ public partial class Global : Node
         SetActiveScene(this.GetTree().Root.GetNode<MainMenu>("MainMenu"));
 
         Network = GetNode<GNetwork>("GNetwork");
+        gMap = GetNode<GLevel>("GLevel");
         
     }
     //Scene Loading and other instancing
@@ -68,8 +71,8 @@ public partial class Global : Node
     public void CloseMenuAndOpenLevel(MainMenu mm, PackedScene levelToLoad)
     {
         Level loadedLevel = levelToLoad.Instance() as Level;
-        loadedLevel.Init(this,false);
-
+        loadedLevel.InitGlobal(this,false);
+        
         GetTree().Root.AddChild(loadedLevel, true);
         SetActiveScene(loadedLevel);
         
@@ -87,6 +90,7 @@ public partial class Global : Node
 
         Network.server.Terminate();
         Network.client.Disconnect();
+        gMap.SetMap(null);
 
         GC.Collect();
     }
@@ -113,14 +117,12 @@ public partial class Global : Node
             return;
         }
         
-
-        GD.Print("[Global] Lvl loaded with success");
-
+        LoadedLevel.InitGlobal(this, true);
         LoadedLevel.InitPlayerAndModeServer(gamemode, numberOfTeams);
-        //Dictionary<byte, Vector2> IDToPositions = 
+        
         GetTree().Root.AddChild(LoadedLevel, true);
 
-        GD.Print("[Global]Position sync dictionary recieved with success");
+        
 
         sender.SetUnReady();
         sender.SendStartSignalToAllClients(LoadedLevel.GetLvlID());
@@ -157,6 +159,7 @@ public partial class Global : Node
         PackedScene mapScene = GD.Load<PackedScene>(mapPath);
         Level map = mapScene.Instance() as Level;
 
+        map.InitGlobal(this, true);
         map.InitPlayerAndModeClient();
         GetTree().Root.AddChild(map);
 

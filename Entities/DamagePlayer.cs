@@ -11,16 +11,19 @@ public class DamagePlayer : AnimationPlayer
     }
     public void Damage(float timing,short damage)
     {
+        //if (damage == 0) return;
         displayNumber += damage;
         displayLabel.Text = displayNumber.ToString();
         
         
-        if (displayNumber > 0) displayLabel.SetSelfModulate(Color.Color8(255,0,0));// = new Color(0xffff0000);       //RED
-        else if (displayNumber < 0) displayLabel.SelfModulate = new Color(0xff00ff00);  //GREEN
-        else displayLabel.SelfModulate = new Color(0xffffffff);                         //WHITE
-
-        GD.Print("[DamagePlayer] " + displayLabel.Text + " " + displayLabel.SelfModulate);
-
+        if (displayNumber > 0) displayLabel.SetSelfModulate(Color.Color8(255,0,0,255));// = new Color(0xffff0000);       //RED
+        else if (displayNumber < 0) displayLabel.SelfModulate =  Color.Color8(0,255,0,255);  //GREEN
+        else
+        {
+            displayLabel.SelfModulate = Color.Color8(255, 255, 255, 255);                         //WHITE
+            GD.Print("[DamagePlayer] modulate = " + displayLabel.SelfModulate);
+        } 
+            
         if (this.IsPlaying()) RelaunchAnim();//If animation already Playing : reset it
 
         //timing 0.00 -> 0.33 -> 1
@@ -42,7 +45,7 @@ public class DamagePlayer : AnimationPlayer
 
     public void AnimationOver(String anim_name)
     {
-        GD.Print("[DamagePlayer] DAMAGE ANIMATION ENDED :3 :3 :3 final damage = " + displayNumber);
+        GD.Print("[DamagePlayer] DAMAGE ANIMATION ENDED final damage = " + displayNumber);
         displayNumber = 0;
         GetParent().GetParent<Entity>().CheckDeath();
         

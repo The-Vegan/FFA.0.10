@@ -99,7 +99,9 @@ public class Attack : Node2D
     public override void _Ready()
     {
         BeatAtkUpdate();
-        damageCorrection = (float)(0.3f / (Math.Pow((timing - 0.55), 1.6) + 0.3));
+        damageCorrection = (float) (/**/((0.3f / (Math.Pow(Math.Abs(timing - 0.475), 1.6f) + 0.3f)) + (0.3f / (Math.Pow(Math.Abs(timing - 0.625f), 1.6f) + 0.3f))/2f)/**/);
+
+        GD.Print("[Attack] DamageMultiplier is " + damageCorrection + " Divider was " + (Math.Pow(Math.Abs(timing - 0.55), 1.6) + 0.3) + " Timing was " + timing);
     }
 
     private void BeatAtkUpdate()
@@ -281,9 +283,13 @@ public class Attack : Node2D
     }
     public void RemoveDamageTiles(DamageTile removedTile)
     {
-        if(posToTiles[removedTile.GetCoords()] == removedTile) 
-            posToTiles.Remove(removedTile.GetCoords());
-        //Might create ghostTiles (unlikely)
+        if(posToTiles.ContainsKey(removedTile.GetCoords()))
+        {
+            if (posToTiles[removedTile.GetCoords()] == removedTile)
+                posToTiles.Remove(removedTile.GetCoords());
+            //Might create ghostTiles (unlikely)
+        }
+
     }
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
