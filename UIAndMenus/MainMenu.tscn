@@ -1085,6 +1085,7 @@ theme = ExtResource( 12 )
 disabled = true
 text = "*Empty*"
 
+[connection signal="pressed" from="Camera2D/CanvasLayer/ResetNetworkConfigForm/Yes" to="." method="ConfirmNetworkReset"]
+[connection signal="pressed" from="Camera2D/CanvasLayer/ResetNetworkConfigForm/No" to="." method="CancelNetworkReset"]
 [connection signal="focus_exited" from="Camera2D/CanvasLayer/NameBox" to="Camera2D/CanvasLayer/NameBox" method="FocusExit"]
-[connection signal="pressed" from="CharacterSelect/ChoseALevel" to="." method="CharacterChosen"]
 [connection signal="pressed" from="WaitForPlayers/Start" to="." method="OnLaunchedPressed"]

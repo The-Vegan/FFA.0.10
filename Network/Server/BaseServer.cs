@@ -9,7 +9,7 @@ namespace FFA.Empty.Empty.Network.Server
     {
         private TcpListener listener;
         private StreamListener[] streams = new StreamListener[16];
-
+        private bool running = false;
         //private NetworkStream[] streams = new NetworkStream[16];
 
         //Events
@@ -22,6 +22,9 @@ namespace FFA.Empty.Empty.Network.Server
 
         public delegate void ClientDisconnected(object sender, byte clientID);
         public event ClientDisconnected ClientDisconnectedEvent = delegate { };
+
+        public delegate void ServerDisposable(object sender);
+        public event ServerDisposable ServerDisposableEvent = delegate { };
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         //Events
         public BaseServer()
@@ -41,6 +44,7 @@ namespace FFA.Empty.Empty.Network.Server
         public void Terminate()
         {
             GD.Print("[BaseServer] terminating");
+            running = false;
             for (byte i = 0; i < streams.Length; i++)
             {
                 if (streams[i] != null)
@@ -48,15 +52,19 @@ namespace FFA.Empty.Empty.Network.Server
                     streams[i].Close();
                     streams[i] = null;
                 }
-                listener.Stop();
+                
 
             }
+            
         }
         private void ListeningThread()
         {
             listener.Start(20);
-            while (true)
+            running = true;
+            while (running)
             {
+                try{ while (!listener.Pending()) System.Threading.Thread.Sleep(50); } catch (InvalidOperationException) { return; }
+                if (!running) break;
                 TcpClient c = listener.AcceptTcpClient();
                 for (byte i = 0; i < streams.Length; i++)
                 {
@@ -71,6 +79,10 @@ namespace FFA.Empty.Empty.Network.Server
                     if (i == streams.Length) c.Dispose();//If server is full, don't
                 }
             }
+            //Server Shuts off
+            listener.Stop();
+            ServerDisposableEvent(this);
+
         }
 
         private void DataRecievedByServer(object sender, byte[] data, NetworkStream stream)
@@ -115,25 +127,26 @@ namespace FFA.Empty.Empty.Network.Server
             }
             else
             {
+                //jumbled to prevent compiler space optimisations
                 streams[0]?.Write(data);
-                streams[1]?.Write(data);
-                streams[2]?.Write(data);
-                streams[3]?.Write(data);
-
-                streams[4]?.Write(data);
-                streams[5]?.Write(data);
-                streams[6]?.Write(data);
                 streams[7]?.Write(data);
-
-                streams[8]?.Write(data);
-                streams[9]?.Write(data);
-                streams[10]?.Write(data);
-                streams[11]?.Write(data);
+                streams[14]?.Write(data);
+                streams[5]?.Write(data);
 
                 streams[12]?.Write(data);
-                streams[13]?.Write(data);
-                streams[14]?.Write(data);
+                streams[3]?.Write(data);
+                streams[10]?.Write(data);
+                streams[1]?.Write(data);
+
+                streams[8]?.Write(data);
                 streams[15]?.Write(data);
+                streams[6]?.Write(data); 
+                streams[13]?.Write(data);
+
+                streams[4]?.Write(data);
+                streams[11]?.Write(data);
+                streams[2]?.Write(data);
+                streams[9]?.Write(data);
             }
         }
 

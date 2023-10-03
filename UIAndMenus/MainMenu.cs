@@ -52,7 +52,7 @@ public class MainMenu : Control
 
 	//Camera Position
 	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	protected List<Vector2> back = new List<Vector2>() { new Vector2(0, 0) };
+	protected Vector2[] back = new Vector2[] { new Vector2(0, 0) };
 
 	protected Vector2 MAINMENU = new Vector2(0, 0);
 	protected Vector2 SOLO = new Vector2(0, -576);
@@ -66,22 +66,31 @@ public class MainMenu : Control
 	{
 		if (destination == -1)
 		{
-			camera.Position = back[back.Count - 1];
-			back.RemoveAt(back.Count - 1);
+			if (global.isMultiplayer)
+			{
+                if (back[back.Length - 1] == MAINMENU)
+                {
+					ShowNetworkForm();
+					return;
+				}
+            }
+			
 
-			if (back.Count <= 0) back.Add(MAINMENU);
+
+			camera.Position = back[back.Length - 1];
+			RemoveLastBack();
 			return;
 		}
 
-		back.Add(camera.Position);
+		AddNewBack(camera.Position);
+		GD.Print("[MainMenu] Back camera History Length : " + back.Length);
 		nameBox.Visible = false;
 		switch (destination)
 		{
 			case 0://MainMenu                                   
 				global.ResetNetworkConfigAndGoBackToMainMenu();
 				break;
-			case 1://Solo
-				global.ResetNetworkConfigAndGoBackToMainMenu();
+			case 1://ModeSelect
 				camera.Position = SOLO;
 				break;
 			case 2://Character Select
@@ -107,12 +116,43 @@ public class MainMenu : Control
 				break;
 		}
 	}
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	//Camera Position
 
-	//IHM
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	public void SetGame(byte mode) { global.gamemode = mode; }
+    private void AddNewBack(Vector2 position)
+    {
+        Vector2[] buffer = new Vector2[back.Length + 1];
+
+        for (byte i = 0; i < back.Length; i++)
+        {
+            buffer[i] = back[i];
+        }
+		buffer[back.Length] = position;
+        back = buffer;
+    }
+
+    private void RemoveLastBack()
+    {
+
+		if(back.Length <= 2)
+		{
+			back = new Vector2[] { MAINMENU };
+			return;
+		}
+
+        Vector2[] buffer = new Vector2[back.Length - 1];
+
+        for (byte i = 0; i < back.Length - 1; i++)
+        {
+            buffer[i] = back[i];
+        }
+        back = buffer;
+    }
+
+    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    //Camera Position
+
+    //IHM
+    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    public void SetGame(byte mode) { global.gamemode = mode; }
 	public void SetCharacter(byte character) { global.playerCharID = character; global.Network.client.SendCharIDAndName(nameBox.Text); }
 	public void SetPlayerName(string name) { global.Network.client.SendCharIDAndName(name); }
 
@@ -138,7 +178,6 @@ public class MainMenu : Control
 			}
 			playerLabel.Pressed = true;
 			playerLabel.Text = playerList[i].ToString();
-			GD.Print("[MainMenu] changed button " + playerList[i].clientID);
 		}
 	}
 
@@ -151,16 +190,33 @@ public class MainMenu : Control
 
 	public void BackToMainMenu()
 	{
-		GD.Print("[MainMenu] Reset Network Config");
-		back.Clear();
+		back = new Vector2[] { MAINMENU };
 		camera.Position = MAINMENU;
 	}
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	//Network Related
 
-	//Launched By Distant Host
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	private void OnLaunchedPressed()//You are the host
+	public void ShowNetworkForm()
+	{
+		this.resetNetworkConfigForm.Visible = true;
+		GetTree().CallGroup("MenuButton", "_Set", "enable", false);
+	}
+
+	public void ConfirmNetworkReset()
+	{
+        GetTree().CallGroup("MenuButton", "_Set", "enable", true);
+        this.resetNetworkConfigForm.Visible = false;
+        global.ResetNetworkConfigAndGoBackToMainMenu();
+	}
+	public void CancelNetworkReset()//Called via signal
+	{
+        GetTree().CallGroup("MenuButton", "_Set", "enable", true);
+        this.resetNetworkConfigForm.Visible = false;
+	}
+    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    //Network Related
+
+    //Launched By Distant Host
+    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
+    private void OnLaunchedPressed()//You are the host
 	{
 		if (global.bufferLvlToLoad == null) {GD.Print("[MainMenu] Error, No level or Invalid level Selected"); return; }
 		global.launchAborted = false;
@@ -187,10 +243,4 @@ public class MainMenu : Control
 	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
 	//Launched By Distant Host
 
-	//Level Loading
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-
-
-	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-	//Level Loading
 }

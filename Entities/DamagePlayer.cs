@@ -13,7 +13,8 @@ public class DamagePlayer : AnimationPlayer
     {
         //if (damage == 0) return;
         displayNumber += damage;
-        displayLabel.Text = displayNumber.ToString();
+        if (displayNumber < 0) displayLabel.Text = (displayNumber * -1).ToString();
+        else displayLabel.Text = displayNumber.ToString();
         
         
         if (displayNumber > 0) displayLabel.SetSelfModulate(Color.Color8(255,0,0,255));// = new Color(0xffff0000);       //RED

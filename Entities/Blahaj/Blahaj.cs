@@ -189,11 +189,30 @@ public class Blahaj : Entity
         if ((packet & 0b1111_0000) == 0) return;
         action = "Atk";
         cooldown = ATKCOOLDOWN;
-        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, atkFolder + "V", animPerBeat, flippableAnim);
-        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK, atkFolder + "H", animPerBeat, flippableAnim);
-        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK, atkFolder + "H", animPerBeat, flippableAnim);
-        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, atkFolder + "V", animPerBeat, flippableAnim);
+        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, downAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK,leftAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK,leftAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, downAtkAnimIDs, animPerBeat, flippableAnim);
     }
 
+    protected override void LoadAllTextures()
+    {
+        new System.Threading.Thread(delegate ()
+        {
+            System.Threading.Thread.Sleep(this.id * id * 2);
+            downAtkAnimIDs = new ushort[]
+            {
+                global.gMap.LoadTexture(atkFolder + "VF1.png"),
+                global.gMap.LoadTexture(atkFolder + "VF2.png"),
+                global.gMap.LoadTexture(atkFolder + "VF3.png")
+            };
 
+            leftAtkAnimIDs = new ushort[]
+            {
+                global.gMap.LoadTexture(atkFolder + "HF1.png"),
+                global.gMap.LoadTexture(atkFolder + "HF2.png"),
+                global.gMap.LoadTexture(atkFolder + "HF3.png")
+            };
+        }).Start();
+    }
 }

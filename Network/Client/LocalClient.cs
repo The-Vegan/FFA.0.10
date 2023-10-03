@@ -26,7 +26,7 @@ namespace FFA.Empty.Empty.Network.Client
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         private const byte PING = 0;
         /*CLIENT -> SERVER*/
-        private const byte MOVE = 1;
+        private const byte MOVE_PACKET = 1;
         private const byte SET_CHARACTER = 2;
         private const byte CLIENT_READY = 3;
         /*SERVER -> CLIENT*/
@@ -42,10 +42,11 @@ namespace FFA.Empty.Empty.Network.Client
         //Post launch
         private const byte GAME_OVER = 249;
         private const byte GAME_SOON_OVER = 248;
-        private const byte SET_MOVES = 247;
+        private const byte SET_ACTION = 247;
         private const byte SYNC_ENTITIES = 246;
         private const byte ITEM_GIVEN_BY_SERVER = 245;
         private const byte BLUNDERED_BY_SERVER = 244;
+        private const byte LOAD_ATK_TEXTURE = 243;
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         //Packet Constants
         public LocalClient(string ip)
@@ -85,7 +86,7 @@ namespace FFA.Empty.Empty.Network.Client
                         case GAME_SOON_OVER:
                             GD.Print("[LocalClient] GAME SOON OVER Recieved");
                             break;
-                        case SET_MOVES:
+                        case SET_ACTION:
                             byte entityID = data[1];
                             short entityPacket = (short)((data[2] << 8) + data[3]);
                             float time = BitConverter.ToSingle(data, 4);
@@ -210,7 +211,7 @@ namespace FFA.Empty.Empty.Network.Client
         public void SendPacketToServer(short move)
         {
             byte[] output = new byte[8_192];
-            output[0] = MOVE;
+            output[0] = MOVE_PACKET;
             output[1] = clientID;
             output[2] = (byte)(move >> 8);
             output[3] = (byte)move;

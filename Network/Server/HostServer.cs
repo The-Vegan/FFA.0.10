@@ -3,7 +3,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
-
+using System.Text;
 
 namespace FFA.Empty.Empty.Network.Server
 {
@@ -21,6 +21,9 @@ namespace FFA.Empty.Empty.Network.Server
         public delegate void CountDownSuccessfull(HostServer sender);
         public event CountDownSuccessfull CountdownWithoutEvents = delegate { };
 
+        public delegate void HostServerDisposable(object sender);
+        public event HostServerDisposable HostServerDisposableEvent = delegate { };
+
         public PlayerInfo[] GetPlayer() { return players; }
 
 
@@ -37,13 +40,13 @@ namespace FFA.Empty.Empty.Network.Server
             server.ClientConnectedEvent += Connected;
             server.ClientDisconnectedEvent += Disconnected;
             server.DataRecievedEvent += DataRecieved;
-            this.global = global;
+            server.ServerDisposableEvent += delegate { HostServerDisposableEvent(this); };
         }
         //Packet Constants
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         private const byte PING = 0;
         /*CLIENT -> SERVER*/
-        private const byte MOVE = 1;
+        private const byte MOVE_PACKET = 1;
         private const byte SET_CHARACTER = 2;
         private const byte CLIENT_READY = 3;
         /*SERVER -> CLIENT*/
@@ -59,10 +62,11 @@ namespace FFA.Empty.Empty.Network.Server
         //Post launch
         private const byte GAME_OVER = 249;
         private const byte GAME_SOON_OVER = 248;
-        private const byte SET_MOVES = 247;
+        private const byte SET_ACTION = 247;
         private const byte SYNC_ENTITIES = 246;
         private const byte ITEM_GIVEN_BY_SERVER = 245;
         private const byte BLUNDERED_BY_SERVER = 244;
+        private const byte LOAD_ATK_TEXTURE = 243;
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         //Packet Constants
         public void Terminate()
@@ -85,14 +89,14 @@ namespace FFA.Empty.Empty.Network.Server
                     case PING:
                         server.GetStream((byte)(data[1] - 1)).Write(data, 0, data.Length);
                         break;
-                    case MOVE:
+                    case MOVE_PACKET:
                         GD.Print("[HostServer] MOVE recieved");
                         byte clientID = data[1];
                         short move = (short)((data[2] << 8) + data[3]);
 
                         float time = BitConverter.ToSingle(data, 4);
                         
-                        global.gMap.SetEntityPacket(clientID, move, time);
+                        global.gMap.SetEntityPacketOnLevel(clientID, move, time);
 
                         break;
                     case SET_CHARACTER:
@@ -265,7 +269,7 @@ namespace FFA.Empty.Empty.Network.Server
         public void SendMovePacket(byte entityID, short packet, float timing)
         {
             byte[] stream = new byte[8_192];
-            stream[0] = SET_MOVES;
+            stream[0] = SET_ACTION;
 
             short offset = 1;
 
@@ -299,6 +303,26 @@ namespace FFA.Empty.Empty.Network.Server
         internal void SendEntityMovement(byte entityID, Vector2 newTile)
         {
 
+        }
+
+        internal void SendTexturePath(string texturePath)
+        {
+            if (texturePath == null) return;
+            if (texturePath.Length == 0) return;
+            if (texturePath.Length > ushort.MaxValue) return;
+
+            new System.Threading.Thread(delegate () 
+            {
+                byte[] output = new byte[3 + texturePath.Length * 2];
+                output[0] = LOAD_ATK_TEXTURE;
+                output[1] = (byte)(texturePath.Length >> 8);
+                output[2] = (byte)texturePath.Length;
+
+                byte[] strTarr = Encoding.Unicode.GetBytes(texturePath);
+                for (int i = 0; i < strTarr.Length; i++) output[i + 3] = strTarr[i];
+
+                server.SendDataOnAllStreams(output);
+            }).Start();
         }
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         //Level

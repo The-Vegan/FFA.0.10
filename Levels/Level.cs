@@ -21,6 +21,8 @@ public abstract class Level : TileMap
     protected Camera2D camera;
     protected PackedScene hudScene = GD.Load<PackedScene>("res://UIAndMenus/HUD/Hud.tscn");
 
+    protected ControllerPlayer controllerPlayer;
+
     protected bool teamMode = false;
 
     public abstract byte GetLvlID();
@@ -29,7 +31,7 @@ public abstract class Level : TileMap
 
     //Network
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    protected Dictionary<byte,NetworkController> distantPlayerControllers = new Dictionary<byte, NetworkController>();
+    //protected Dictionary<byte,NetworkController> distantPlayerControllers = new Dictionary<byte, NetworkController>();
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Network
 
@@ -40,6 +42,8 @@ public abstract class Level : TileMap
     protected Dictionary<byte, Entity> idToEntity = new Dictionary<byte, Entity>();
     protected Dictionary<Vector2, Entity> coordToEntity = new Dictionary<Vector2, Entity>();
     protected List<Attack> allAtks = new List<Attack>();
+    [Export]
+    protected List<GenericController> allControllers = new List<GenericController>() { null };
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Entities Variables
 
@@ -64,11 +68,11 @@ public abstract class Level : TileMap
 
     //INIT METHODS
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    public void InitGlobal(Global singleton, bool isMultiplayer)
+    public void InitGlobal(Global singleton)
     {
         global = singleton;
         global.gMap.SetMap(this);
-        if (isMultiplayer)
+        if (global.isMultiplayer)
         {
             if (global.hasServer) return;
         }
@@ -78,18 +82,17 @@ public abstract class Level : TileMap
 
     public bool InitPlayerAndMode(byte chosenCharacter, byte gameMode, byte numberOfTeams)//Solo/client
     {
-        PackedScene controllScene = GD.Load("res://Abstract/ControllerPlayer.tscn") as PackedScene;
 
         InitGameMode(gameMode, numberOfTeams);
-        if (global.isMultiplayer) mainPlayer = CreateEntityInstance(chosenCharacter, controllScene, " ", global.Network.client.id);
-        else mainPlayer = CreateEntityInstance(chosenCharacter,controllScene, " ",1);//CreateEntityInstance Adds the entity to the List of all entities
+        if (global.isMultiplayer) mainPlayer = CreateEntityInstance(chosenCharacter, " ", global.Network.client.id);
+        else mainPlayer = CreateEntityInstance(chosenCharacter, " ",1);//CreateEntityInstance Adds the entity to the List of all entities
 
         GD.Print("[Level] LoadCompleted in level solo/client");
         return true;
 
     }
     
-    public void InitPlayerAndModeServer(byte gameMode,byte numberOfTeams)//multi
+    public void InitPlayerAndModeServer(byte gameMode,byte numberOfTeams)//Host
     {
         if (!global.hasServer) return;
         
@@ -105,10 +108,18 @@ public abstract class Level : TileMap
         
         for (byte i = 0;i < players.Length; i++)
         {
+            //Creates players according to playerInfo list
             if (players[i] == null) continue;
-            entity = CreateEntityInstance(players[i].characterID, controllerToLoad, players[i].name, players[i].clientID);
+            entity = CreateEntityInstance(players[i].characterID, players[i].name, players[i].clientID);
             Spawn(entity);
-            
+
+            //Creates controller
+            NetworkController loadedController = controllerToLoad.Instance() as NetworkController;
+            AddChild(loadedController);
+            loadedController.Init(entity);
+            allControllers.Add(loadedController);
+
+            //Identifies MainPlayer
             if (global.clientID == players[i].clientID)
             {
                 
@@ -116,12 +127,6 @@ public abstract class Level : TileMap
             }
 
         }
-    }
-
-
-    public void AddNetworkController(NetworkController c,byte id)
-    {
-        distantPlayerControllers.Add(id, c);
     }
 
     public void InitPlayerAndModeClient()
@@ -140,7 +145,7 @@ public abstract class Level : TileMap
             }
             else
             {
-                Spawn(CreateEntityInstance(players[i].characterID, networkController, players[i].name, players[i].clientID));
+                Spawn(CreateEntityInstance(players[i].characterID, players[i].name, players[i].clientID));
             }
         }
 
@@ -192,19 +197,26 @@ public abstract class Level : TileMap
         timer = this.GetNode<Timer>("Timer");
         this.RemoveChild(camera);
         Hud hud = hudScene.Instance() as Hud;
-        
+
+        PackedScene controllScene = GD.Load("res://Abstract/ControllerPlayer.tscn") as PackedScene;
+        ControllerPlayer cp = controllScene.Instance() as ControllerPlayer;
+        allControllers[0] = cp;
+        this.AddChild(cp);
+
         mainPlayer.AddChild(hud);
         mainPlayer.Connect("noteHiter", hud, "HitNote");
         mainPlayer.AddChild(camera);
         camera.Current = true;
+
         if (global.isMultiplayer)
         {
-            PackedScene controllScene = GD.Load("res://Abstract/ControllerPlayer.tscn") as PackedScene;
-            ControllerPlayer cp = controllScene.Instance() as ControllerPlayer;
             cp.Init(global);
-            global.AddChild(cp);
         }
-        else timer.Start();
+        else
+        {
+            cp.Init(mainPlayer);
+            timer.Start();
+        }
     }
     public void StartTimer() { timer.Start(); }//Launched when all clients are "ready"
     public float GetTime()
@@ -237,11 +249,10 @@ public abstract class Level : TileMap
         while (idToEntity.ContainsKey(idToGive) || idToGive == 0) 
         { 
             idToGive++;
-            GD.Print("[Level] current ID to give is = " + idToGive);
         }
-        return CreateEntityInstance(rand.Next(1,4), pcs, nametag,idToGive);//Creates random entity
+        return CreateEntityInstance(rand.Next(1,4), nametag,idToGive);//Creates random entity
     }
-    protected Entity CreateEntityInstance(int entityID, PackedScene controllScene, string nametag, byte setEntityID)
+    protected Entity CreateEntityInstance(int entityID, string nametag, byte setEntityID)
     {
         if (setEntityID == 0 || setEntityID > 16) throw new ArgumentException("ClientID must be between 1 and 16, was " + setEntityID);
         Entity playerEntity;
@@ -258,7 +269,7 @@ public abstract class Level : TileMap
                 playerEntity = monstropisScene.Instance() as Monstropis;
                 break;
             default://Random
-                return CreateEntityInstance(rand.Next(1, 4), controllScene, nametag, setEntityID);
+                return CreateEntityInstance(rand.Next(1, 4), nametag, setEntityID);
 
         }//End of characters switch statement
 
@@ -266,7 +277,7 @@ public abstract class Level : TileMap
         allEntities.Add(playerEntity);
         idToEntity.Add(setEntityID, playerEntity);
         
-        playerEntity.Init(this, controllScene, nametag, setEntityID);
+        playerEntity.Init(this, nametag, setEntityID);
         this.AddChild(playerEntity, true);
         
         if (teamMode)
@@ -396,8 +407,10 @@ public abstract class Level : TileMap
 
             Entity entity = idToEntity[entityID];
             if (entity.actedThisBeat) return;
-
-            distantPlayerControllers[entity.id].PacketSetByServer(packet);
+            NetworkController c = allControllers[entity.id] as NetworkController;
+            if(c == null) return;
+            
+            c.PacketSetByServer(packet);
             float delta = Math.Abs(entity.timing - timing);//Obtient l'écart entre lvl et entité
             GD.Print("[Level] Movement set by distant machine on entity" + entityID);
             if (delta < 0.03f) entity.timing = timing;//Cecks for lag(in seconds)
@@ -415,11 +428,11 @@ public abstract class Level : TileMap
 
     //ATTACK RELATED METHODS
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    public void CreateAtk(Entity source, List<List<short[]>> atkData, String path, byte[] collumns, bool flipable)
+    public void CreateAtk(Entity source, List<List<short[]>> atkData, ushort[] textureIDs, byte[] collumns, bool flipable)
     {
         Attack atkInstance = atkScene.Instance() as Attack;
         allAtks.Add(atkInstance);
-        atkInstance.InitAtk(source, atkData, this, path, collumns, flipable,this.GetTime());
+        atkInstance.InitAtk(source, atkData, this, textureIDs, collumns, flipable,this.GetTime());
         this.AddChild(atkInstance, true);
 
     }

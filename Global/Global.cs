@@ -64,14 +64,19 @@ public partial class Global : Node
 
         Network = GetNode<GNetwork>("GNetwork");
         gMap = GetNode<GLevel>("GLevel");
-        
+
+
+        var x = GD.Load("res://Entities/Default.png") as Texture;
+        var y = GD.Load("res://Entities/Default.png") as Texture;
+
+
     }
     //Scene Loading and other instancing
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     public void CloseMenuAndOpenLevel(MainMenu mm, PackedScene levelToLoad)
     {
         Level loadedLevel = levelToLoad.Instance() as Level;
-        loadedLevel.InitGlobal(this,false);
+        loadedLevel.InitGlobal(this);
         
         GetTree().Root.AddChild(loadedLevel, true);
         SetActiveScene(loadedLevel);
@@ -117,7 +122,7 @@ public partial class Global : Node
             return;
         }
         
-        LoadedLevel.InitGlobal(this, true);
+        LoadedLevel.InitGlobal(this);
         LoadedLevel.InitPlayerAndModeServer(gamemode, numberOfTeams);
         
         GetTree().Root.AddChild(LoadedLevel, true);
@@ -159,7 +164,7 @@ public partial class Global : Node
         PackedScene mapScene = GD.Load<PackedScene>(mapPath);
         Level map = mapScene.Instance() as Level;
 
-        map.InitGlobal(this, true);
+        map.InitGlobal(this);
         map.InitPlayerAndModeClient();
         GetTree().Root.AddChild(map);
 
@@ -175,9 +180,12 @@ public partial class Global : Node
     public void CountDownTimer() { (activeScene as MainMenu)?.CountDownTimer();}
     public void DisplayPlayerList(PlayerInfo[] players) {(activeScene as MainMenu)?.DisplayPlayerList(players);}
 
+    
+
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Menu Interface
 
-    
+
+
 }

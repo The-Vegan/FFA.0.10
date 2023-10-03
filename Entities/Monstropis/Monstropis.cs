@@ -29,7 +29,8 @@ public class Monstropis : Entity
                 new short[] { -1 , 2 , 30 , 2 , 0 , 0 , 0},
                 new short[] {  1 , 1 , 30 , 1 , 3 , 0 , 0},
                 new short[] {  1 , 2 , 30 , 3 , 0 , 0 , 0}
-            }
+            },
+            new List<short[]> {new short[] { 0 , 0 , 0 , 0 , 0 , 0 , 0 } }
         };
         LEFTATK = new List<List<short[]>>
         {
@@ -41,7 +42,8 @@ public class Monstropis : Entity
                 new short[] { -2 ,-1 , 30 , 2 , 0 , 0 , 0},
                 new short[] { -1 , 1 , 30 , 1 , 3 , 0 , 0},
                 new short[] { -2 , 1 , 30 , 3 , 0 , 0 , 0}
-            }
+            },
+            new List<short[]> {new short[] { 0 , 0 , 0 , 0 , 0 , 0 , 0 } }
         };
         RIGHTATK = new List<List<short[]>>
         {
@@ -53,7 +55,8 @@ public class Monstropis : Entity
                 new short[] {  2 ,-1 , 30 , 2 , 0 , 0 , 0},
                 new short[] {  1 , 1 , 30 , 1 , 3 , 0 , 0},
                 new short[] {  2 , 1 , 30 , 3 , 0 , 0 , 0}
-            }
+            },
+            new List<short[]> {new short[] { 0 , 0 , 0 , 0 , 0 , 0 , 0 } }
         };
         UPATK = new List<List<short[]>>
         {
@@ -65,7 +68,8 @@ public class Monstropis : Entity
                 new short[] { -1 ,-2 , 30 , 2 , 0 , 0 , 0},
                 new short[] {  1 ,-1 , 30 , 1 , 3 , 0 , 0},
                 new short[] {  1 ,-2 , 30 , 3 , 0 , 0 , 0}
-            }
+            },
+            new List<short[]> {new short[] { 0 , 0 , 0 , 0 , 0 , 0 , 0 } }
         };
 
 
@@ -78,4 +82,17 @@ public class Monstropis : Entity
 
     }
 
+    protected override void LoadAllTextures()
+    {
+        new System.Threading.Thread(delegate()
+        {
+            System.Threading.Thread.Sleep(this.id * id * 2);
+
+            downAtkAnimIDs = new ushort[]   { 0 , 0 };
+            leftAtkAnimIDs = new ushort[]   { 0 , 0 };
+            rightAtkAnimIDs = new ushort[]  { 0 , 0 };
+            upAtkAnimIDs = new ushort[]     { 0 , 0 };
+
+        }).Start();
+    }
 }

@@ -38,6 +38,17 @@ public class ControllerPlayer : GenericController
                 packet = 0;
             }
         }
+        else if(target != null)
+        {
+            if (ScanInput())
+            {
+                short p = packet;
+
+                //target.SetPacket(p);
+                GD.Print("[ControllerPlayer] Targer method not implemented");
+                packet = 0;
+            }
+        }
         else
         {
             GD.Print("[ControllerPlayer] ERROR : no valid owner found");

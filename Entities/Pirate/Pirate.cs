@@ -14,6 +14,11 @@ public class Pirate : Entity
     private List<List<short[]>> UPMOVEATK = new List<List<short[]>>();
 
     protected bool reallyMoved = false;
+
+    protected ushort[] downMoveAtkAnimIDs;
+    protected ushort[] leftMoveAtkAnimIDs;
+    protected ushort[] rightMoveAtkAnimIDs;
+    protected ushort[] upMoveAtkAnimIDs;
     public override void _Ready()
     {
 
@@ -189,7 +194,6 @@ public class Pirate : Entity
 
     public override void Moved(Vector2 newTile)
     {
-        GD.Print("[Pirate] Moved");
         if (pos == newTile)
         {
             reallyMoved = false;
@@ -231,18 +235,18 @@ public class Pirate : Entity
         if (((packet >> 4) == (packet & 0b1111)) && (reallyMoved))//if dash-atk
         {
 
-            if (packet == 0b0001_0001) map.CreateAtk(this, DOWNMOVEATK, atkFolder + "DownMoveAtk", animPerBeat, flippableAnim);
-            else if (packet == 0b0010_0010) map.CreateAtk(this, LEFTMOVEATK, atkFolder + "LeftMoveAtk", animPerBeat, flippableAnim);
-            else if (packet == 0b0100_0100) map.CreateAtk(this, RIGHTMOVEATK, atkFolder + "RightMoveAtk", animPerBeat, flippableAnim);
-            else if (packet == 0b1000_1000) map.CreateAtk(this, UPMOVEATK, atkFolder + "UpMoveAtk", animPerBeat, flippableAnim);
+            if (packet == 0b0001_0001) map.CreateAtk(this, DOWNMOVEATK, downMoveAtkAnimIDs, animPerBeat, flippableAnim);
+            else if (packet == 0b0010_0010) map.CreateAtk(this, LEFTMOVEATK, leftMoveAtkAnimIDs, animPerBeat, flippableAnim);
+            else if (packet == 0b0100_0100) map.CreateAtk(this, RIGHTMOVEATK, rightMoveAtkAnimIDs, animPerBeat, flippableAnim);
+            else if (packet == 0b1000_1000) map.CreateAtk(this, UPMOVEATK, upMoveAtkAnimIDs, animPerBeat, flippableAnim);
 
             return;
         }
 
-        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, atkFolder + "DownAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK, atkFolder + "LeftAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK, atkFolder + "RightAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, atkFolder + "UpAtk", animPerBeat, flippableAnim);
+        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, downAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK, leftAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK, rightAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, upAtkAnimIDs, animPerBeat, flippableAnim);
     }
     public override void SetPacketAsync(short p)
     {
@@ -260,7 +264,7 @@ public class Pirate : Entity
 
 
             actedThisBeat = true;
-            GD.Print("[Pirate] Packet Locked");
+            
             packet = PacketParser(packet);
             timing = map.GetTime();
 
@@ -288,5 +292,24 @@ public class Pirate : Entity
 
             this.Play(action + direction);
         }).Start();
+    }
+
+    protected override void LoadAllTextures()
+    {
+        new System.Threading.Thread(delegate () {
+            System.Threading.Thread.Sleep(this.id * id * 2);
+
+            downAtkAnimIDs = new ushort[] { global.gMap.LoadTexture(atkFolder + "DownAtkF1.png") };
+            leftAtkAnimIDs = new ushort[] { global.gMap.LoadTexture(atkFolder + "LeftAtkF1.png") };
+            rightAtkAnimIDs = new ushort[]{ global.gMap.LoadTexture(atkFolder + "RightAtkF1.png") };
+            upAtkAnimIDs = new ushort[] {   global.gMap.LoadTexture(atkFolder + "UpAtkF1.png")};
+
+            downMoveAtkAnimIDs = new ushort[] { global.gMap.LoadTexture(atkFolder + "DownMoveAtkF1.png") };
+            leftMoveAtkAnimIDs = new ushort[] { global.gMap.LoadTexture(atkFolder + "LeftMoveAtkF1.png") };
+            rightMoveAtkAnimIDs = new ushort[]{ global.gMap.LoadTexture(atkFolder + "RightMoveAtkF1.png") };
+            upMoveAtkAnimIDs = new ushort[] {   global.gMap.LoadTexture(atkFolder + "UpMoveAtkF1.png") };
+
+        }).Start();
+        
     }
 }

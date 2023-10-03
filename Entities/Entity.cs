@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public class Entity : AnimatedSprite
+public abstract class Entity : AnimatedSprite
 {
     //DEPENDENCIES
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     protected Global global;
 
-    protected PackedScene controllerScene;
-    public GenericController controller;
     protected Level map;
     protected Tween tween;
     protected AnimationPlayer animPlayer;
@@ -70,6 +68,11 @@ public class Entity : AnimatedSprite
     protected byte[] animPerBeat;
     protected bool flippableAnim = false;
 
+    protected ushort[] downAtkAnimIDs;
+    protected ushort[] leftAtkAnimIDs;
+    protected ushort[] rightAtkAnimIDs;
+    protected ushort[] upAtkAnimIDs;
+
     protected List<List<short[]>> DOWNATK = new List<List<short[]>>();
     protected List<List<short[]>> LEFTATK = new List<List<short[]>>();
     protected List<List<short[]>> RIGHTATK = new List<List<short[]>>();
@@ -93,18 +96,16 @@ public class Entity : AnimatedSprite
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //CTF
 
-    public void Init(Level level, PackedScene c, String name, byte givenID)
+    public void Init(Level level, String name, byte givenID)
     {
         this.map = level;
-        this.controllerScene = c;
         this.nameTag = name;
         this.id = givenID;
 
     }
-    public void Init(Level level, PackedScene c, byte givenID)
+    public void Init(Level level, byte givenID)
     {
         this.map = level;
-        this.controllerScene = c;
         this.nameTag = "";
         this.id = givenID;
     }
@@ -118,11 +119,9 @@ public class Entity : AnimatedSprite
 
         tween = this.GetNode<Tween>("Tween");
 
-        controller = controllerScene.Instance() as GenericController;
-        controller.Init(this);//Tells the controller what entity it controlls
-        this.AddChild(controller, true);
-
-        if (controller.GetType() == typeof(NetworkController)) map.AddNetworkController(this.controller as NetworkController, this.id);
+        //Checking twice is faster
+        if (global.hasServer) LoadAllTextures();
+        else if (!global.isMultiplayer) LoadAllTextures();
     }
 
 
@@ -144,7 +143,7 @@ public class Entity : AnimatedSprite
 
            if (actedThisBeat) return;
            actedThisBeat = true;
-           GD.Print("[Entity] Packet Locked");
+           
            packet = PacketParser(packet);
            timing = map.GetTime();
             //GD.Print("[Entity] Timing is : " + (timing - (1f / 6f)));
@@ -206,7 +205,6 @@ public class Entity : AnimatedSprite
         //if none of movement bits are set to true
         if ((packet & 0b1111) == 0) return;
 
-        GD.Print("[Entity][AskMovement] " + packet);
 
         if ((packet & 0b0001) != 0) map.MoveEntity(this, pos + Vector2.Down);
         else if ((packet & 0b0010) != 0) map.MoveEntity(this, pos + Vector2.Left);
@@ -219,15 +217,14 @@ public class Entity : AnimatedSprite
         if ((packet & 0b1111_0000) == 0) return;
         action = "Atk";
         cooldown = (byte)(ATKCOOLDOWN + 1);
-        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, atkFolder + "DownAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK, atkFolder + "LeftAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK, atkFolder + "RightAtk", animPerBeat, flippableAnim);
-        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, atkFolder + "UpAtk", animPerBeat, flippableAnim);
+        if ((packet & 0b0001_0000) != 0) map.CreateAtk(this, DOWNATK, downAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0010_0000) != 0) map.CreateAtk(this, LEFTATK, leftAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b0100_0000) != 0) map.CreateAtk(this, RIGHTATK, rightAtkAnimIDs, animPerBeat, flippableAnim);
+        else if ((packet & 0b1000_0000) != 0) map.CreateAtk(this, UPATK, upAtkAnimIDs, animPerBeat, flippableAnim);
     }
 
     public virtual void Moved(Vector2 newTile)
     {
-        GD.Print("[Entity] Moved");
         if (pos == newTile) return;
 
         map.SetCell((int)pos.x, (int)pos.y, 0);
@@ -310,7 +307,7 @@ public class Entity : AnimatedSprite
         midBeatInterrupted = true;
 
     }
-
+    protected abstract void LoadAllTextures();
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //GESTION DES ANIMATIONS
 

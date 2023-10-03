@@ -31,11 +31,12 @@ public class Attack : Node2D
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     protected Entity source;
     protected Level level;
+    protected Global global;
 
     protected float damageCorrection = 1f;
 
-    protected String folderPath;
-    protected String beatAnimPath;
+    protected ushort[] textureArr;
+    protected ushort beatAnimID;
 
     protected PackedScene damageTileScene = GD.Load("res://Abstract/DamageTile.tscn") as PackedScene;
 
@@ -51,12 +52,12 @@ public class Attack : Node2D
     protected byte[] animations;
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //ANIMATIONS
-    public void InitAtk(Entity attacker ,List<List<short[]>> atkData ,Level map,String path ,byte[] collumns ,bool flipable , float time)
+    public void InitAtk(Entity attacker ,List<List<short[]>> atkData ,Level map,ushort[] textureIDs ,byte[] collumns ,bool flipable , float time)
     {
         this.source = attacker;
         this.packagedAtkData = atkData;
         this.level = map;
-        this.folderPath = path;
+        this.textureArr = textureIDs;
         this.animations = collumns;
         this.flipableAnims = flipable;
         
@@ -67,6 +68,11 @@ public class Attack : Node2D
         this.Position = (source.pos * 64) + new Vector2(32,16);
 
         this.timing = time;
+
+        if(textureArr == null) 
+        {
+            textureArr = new ushort[animations.Length];
+        }
     }
 
     private float FixFirstBeatPlaySpeed(float timing)//Timing is how early relative to beat update the attack was instanced
@@ -98,10 +104,10 @@ public class Attack : Node2D
     }
     public override void _Ready()
     {
+        global = GetTree().Root.GetNode<Global>("Global");
+
         BeatAtkUpdate();
         damageCorrection = (float) (/**/((0.3f / (Math.Pow(Math.Abs(timing - 0.475), 1.6f) + 0.3f)) + (0.3f / (Math.Pow(Math.Abs(timing - 0.625f), 1.6f) + 0.3f))/2f)/**/);
-
-        GD.Print("[Attack] DamageMultiplier is " + damageCorrection + " Divider was " + (Math.Pow(Math.Abs(timing - 0.55), 1.6) + 0.3) + " Timing was " + timing);
     }
 
     private void BeatAtkUpdate()
@@ -109,9 +115,7 @@ public class Attack : Node2D
         if (!firstBeatWasCalled)
         {
             firstBeatWasCalled = true;
-            
-            beatAnimPath = folderPath + "F" + 1 + ".png";
-            SpriteFrames textureAnime = LoadSpriteSheet(0);
+            SpriteFrames textureAnime = LoadSpriteSheet(textureArr[0]);
 
             List<short[]> frameAtkData = packagedAtkData[0];
             for (int tile = 0; tile < frameAtkData.Count; tile++)
@@ -144,9 +148,9 @@ public class Attack : Node2D
                 this.QueueFree();
                 return;
             }
-
-            beatAnimPath = folderPath + "F" + currentBeat + ".png";
-            var textureAnime = LoadSpriteSheet((byte)(currentBeat - 1));
+            SpriteFrames textureAnime;
+            if (currentBeat == 0) textureAnime = LoadSpriteSheet(textureArr[0]);
+            else textureAnime = LoadSpriteSheet(textureArr[currentBeat-1]);
 
             var frameAtkData = packagedAtkData[currentBeat - 1];
             for (int tile = 0; tile < frameAtkData.Count; tile++)
@@ -221,24 +225,39 @@ public class Attack : Node2D
         instancedDTS.Position += (tilePos - gridPos) * 64;
     }
 
-    protected SpriteFrames LoadSpriteSheet(byte sheet)
+    protected SpriteFrames LoadSpriteSheet(ushort sheet)
     {
+        GD.Print("[Attack] Use texture : " + global.gMap.GetTexture(sheet).ResourcePath);
         SpriteFrames sf = new SpriteFrames();
         byte rows = 20;
-        if (sheet == (maxBeat - 1)) rows = 10;
-       
-        Texture spriteSheet = GD.Load(beatAnimPath) as Texture;
-        
-        //File not found
-        if (spriteSheet == null)
-        {
-           GD.Print("[Attack] Can't find texture : " + beatAnimPath);
-            spriteSheet = GD.Load("res://Entities/Default.png") as Texture;
-            
-        }
-        //File not found
+        if (maxBeat == 1) rows = 10;
+        else if (currentBeat == maxBeat) rows = 10;
 
-        for (byte col = 0; col < animations[sheet]; col++)
+       
+        Texture spriteSheet = global.gMap.GetTexture(sheet);
+        
+        if (currentBeat == 0)
+        {
+            for (byte col = 0; col < animations[0]; col++)
+            {
+                //create animations
+                sf.AddAnimation("c" + col);
+                sf.SetAnimationSpeed("c" + col, 30);
+                sf.SetAnimationLoop("c" + col, false);
+
+
+                for (byte r = 0; r < rows; r++)
+                {
+                    AtlasTexture atlas = new AtlasTexture();
+                    atlas.Atlas = spriteSheet;
+                    atlas.Region = new Rect2(new Vector2(col * 64, r * 64), new Vector2(64, 64));
+                    sf.AddFrame("c" + col, atlas, r);
+                }
+
+            }
+            return sf;
+        }//Else currentBeat != 0
+        for (byte col = 0; col < animations[currentBeat-1]; col++)
         {
             //create animations
             sf.AddAnimation("c" + col);
