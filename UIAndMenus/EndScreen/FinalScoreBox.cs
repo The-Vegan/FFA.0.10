@@ -14,10 +14,10 @@ public class FinalScoreBox : Control
 
     //Variables
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    protected String name;
-    protected short score;
-    protected short perfectBeats;
-    protected short missedBeats;//mister beast
+    protected String name = "default";
+    protected short score = -1;
+    protected short perfectBeats = 621;
+    protected short missedBeats = 5;//mister beast
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Variables
@@ -55,12 +55,12 @@ public class FinalScoreBox : Control
     public override void _Ready()
     {
         banner = this.GetChild(0) as Sprite;
-        portrait = banner.GetChild(0) as Sprite;
+        portrait = banner.GetNode("Portrait") as Sprite;
 
-        banner.GetChild<Label>(1).Text = name;
-        banner.GetChild<Label>(2).Text = score.ToString();
-        banner.GetChild<Label>(3).Text = perfectBeats.ToString();
-        banner.GetChild<Label>(4).Text = missedBeats.ToString();
+        banner.GetNode<Label>("Name").Text = name;
+        banner.GetNode<Label>("Score").Text = score.ToString();
+        banner.GetNode<Label>("PerfectBeats").Text = perfectBeats.ToString();
+        banner.GetNode<Label>("MissedBeats").Text = missedBeats.ToString();
 
     }
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
