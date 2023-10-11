@@ -1,7 +1,6 @@
-[gd_resource type="Theme" load_steps=7 format=2]
+[gd_resource type="Theme" load_steps=6 format=2]
 
 [ext_resource path="res://UIAndMenus/Button Theme/ButtonFont.tres" type="DynamicFont" id=1]
-[ext_resource path="res://UIAndMenus/Button Theme/buttonPlayer.png" type="Texture" id=2]
 
 [sub_resource type="DynamicFontData" id=2]
 font_path = "res://UIAndMenus/Button Theme/Compact Ex Italic.ttf"
@@ -13,7 +12,6 @@ outline_color = Color( 0, 0, 0, 1 )
 font_data = SubResource( 2 )
 
 [sub_resource type="StyleBoxTexture" id=1]
-texture = ExtResource( 2 )
 region_rect = Rect2( 0, 0, 32, 32 )
 margin_left = 15.0
 margin_right = 15.0
@@ -21,7 +19,6 @@ margin_top = 15.0
 margin_bottom = 15.0
 
 [sub_resource type="StyleBoxTexture" id=4]
-texture = ExtResource( 2 )
 region_rect = Rect2( 0, 0, 32, 32 )
 margin_left = 15.0
 margin_right = 15.0
