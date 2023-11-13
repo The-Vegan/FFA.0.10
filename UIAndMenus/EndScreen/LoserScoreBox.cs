@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class FinalScoreBox : Control
+public class LoserScoreBox : Control
 {
 
     //Variables
@@ -25,24 +25,19 @@ public class FinalScoreBox : Control
 
     //Init Method
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    public void Init(byte podium,Entity player)
+    public void Init(byte podium, Entity player)
     {
         String folder = "res://UIAndMenus/EndScreen/Textures/";
 
-        bnrTexture = GD.Load(folder + "w" + podium + ".png") as Texture;
-
-
+        bnrTexture = GD.Load(folder + "l" + podium + ".png") as Texture;
 
         this.name = player.GetNametag();
         this.score = player.score;
         this.perfectBeats = player.GetPerBeat();
         this.missedBeats = player.GetMisBeat();
-        GD.Print("[FanalScoreBox][Init] score = " + score + " ; P = " + perfectBeats + " ; M = " + missedBeats);
     }
     public override void _Ready()
     {
-        GD.Print("[FanalScoreBox] score = " + score + " ; P = " + perfectBeats + " ; M = " + missedBeats);
-
         banner = this.GetChild(0) as Sprite;
         portrait = banner.GetChild(0) as Sprite;
 

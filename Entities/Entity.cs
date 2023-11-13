@@ -16,9 +16,11 @@ public abstract class Entity : AnimatedSprite
 
     public byte team = 0;
     public byte id;
-
+    public short score = 0;
     protected String nameTag;
     public String GetNametag() { return nameTag; }
+
+    public void DebugSetNameTag(String n) { nameTag = n; }
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //DEPENDENCIES

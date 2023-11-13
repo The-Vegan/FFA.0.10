@@ -462,6 +462,7 @@ public abstract class Level : TileMap
             {
                 if (atk.posToTiles[entity.pos].GetDamage() == 0) continue;
                 entity.Damaged(atk);
+
             }
         }
     }
