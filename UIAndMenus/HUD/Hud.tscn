@@ -832,11 +832,12 @@
 58/z_index = 0
 
 [node name="Hud" type="CanvasLayer" groups=["Attacks"]]
-layer = 64
+layer = 48
 script = ExtResource( 2 )
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2( -1, -1 )
+z_index = -10
 tile_set = SubResource( 1 )
 cell_size = Vector2( 16, 16 )
 format = 1

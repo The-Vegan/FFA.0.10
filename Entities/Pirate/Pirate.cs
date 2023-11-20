@@ -312,4 +312,9 @@ public class Pirate : Entity
         }).Start();
         
     }
+
+    public override Texture GetPortrait()
+    {
+        return GD.Load("res://Entities/Pirate/PortraitPirate.png") as Texture;
+    }
 }

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class EndScreen : Control
+public class EndScreen : CanvasLayer
 {
     byte listLength = 0;
 
@@ -12,6 +12,9 @@ public class EndScreen : Control
     [Export]
     Entity[] players;
 
+    Node2D n2d;
+
+    Control container;
     [Export]
     VBoxContainer loserContainer;
 
@@ -20,6 +23,7 @@ public class EndScreen : Control
 
     public void Init(Entity[] allPlayers)
     {
+        if (allPlayers == null) return;
         {//CombSort
             byte gap = (byte)(allPlayers.Length >> 1);
 
@@ -57,7 +61,7 @@ public class EndScreen : Control
         {
             FinalScoreBox fsb = loadedFinalScoreBox.Instance() as FinalScoreBox;
             fsb.Init(podium, entity);
-            this.AddChild(fsb, true);
+            n2d.AddChild(fsb, true);
 
             fsb.RectPosition = new Vector2(0, listLength * 192);
             listLength++;
@@ -72,11 +76,21 @@ public class EndScreen : Control
 
     public override void _Ready()
     {
+        n2d = this.GetNode<Node2D>("Node2D");
+        container = this.GetNode<Control>("Node2D/EndScreen");
+        Tween tween = this.GetNode<Tween>("Node2D/EndScreen/Tween");
+        ColorRect cr = this.GetNode<ColorRect>("Node2D/ColorRect");
 
-        
 
+        tween.InterpolateProperty(n2d, "position",new Vector2(0,-576),Vector2.Zero,5f,
+            Tween.TransitionType.Elastic,Tween.EaseType.Out);
+        tween.Start();
+
+        tween.InterpolateProperty(cr, "color",cr.Color, Color.Color8(0,0,0,128), 5f,
+            Tween.TransitionType.Sine, Tween.EaseType.Out);
+        tween.Start();
         //DEBUG #############################################
-        /*if (players == null)
+        if (players == null)
         {
             players = new Entity[] {    new Pirate(), new Blahaj(), new Monstropis(),
                                         new Pirate(), new Blahaj(), new Monstropis(), 
@@ -85,14 +99,14 @@ public class EndScreen : Control
             for(int ii = 0; ii < players.Length; ii++)
             {
                 players[ii].DebugSetNameTag("Dbg wnr" + (ii + 1));
-                
+                players[ii].score = (short)(10 - ii);
             }
            
         }
-        */
+        
         //DEBUG #############################################
 
-        loserContainer = this.GetNode("VBoxContainer") as VBoxContainer;
+        loserContainer = this.GetNode("Node2D/EndScreen/LoserList/VBoxContainer") as VBoxContainer;
 
         SetCanvas(1, players[0]);//Sets first player's banner
 

@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public class Blahaj : Entity
 {
+    public override Texture GetPortrait()
+    {
+        return GD.Load("res://Entities/Blahaj/PortraitBlahaj.png") as Texture;
+    }
 
     public override void _Ready()
     {

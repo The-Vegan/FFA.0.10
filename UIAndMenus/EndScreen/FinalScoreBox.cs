@@ -18,6 +18,7 @@ public class FinalScoreBox : Control
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     protected Sprite banner;
     protected Texture bnrTexture;
+    protected Texture prtrtTexture;
     protected Sprite portrait;
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //ChildNode
@@ -32,11 +33,12 @@ public class FinalScoreBox : Control
         bnrTexture = GD.Load(folder + "w" + podium + ".png") as Texture;
 
 
-
+        
         this.name = player.GetNametag();
         this.score = player.score;
         this.perfectBeats = player.GetPerBeat();
         this.missedBeats = player.GetMisBeat();
+        this.prtrtTexture = player.GetPortrait();
         GD.Print("[FanalScoreBox][Init] score = " + score + " ; P = " + perfectBeats + " ; M = " + missedBeats);
     }
     public override void _Ready()
@@ -47,6 +49,7 @@ public class FinalScoreBox : Control
         portrait = banner.GetChild(0) as Sprite;
 
         banner.Texture = bnrTexture;
+        banner.GetChild<Sprite>(0).Texture = prtrtTexture;
 
         banner.GetChild<Label>(1).Text = name;
         banner.GetChild<Label>(2).Text = "Score : " + score;

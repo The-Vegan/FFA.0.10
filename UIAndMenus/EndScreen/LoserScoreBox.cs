@@ -18,6 +18,7 @@ public class LoserScoreBox : Control
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     protected Sprite banner;
     protected Texture bnrTexture;
+    protected Texture prtrtTexture;
     protected Sprite portrait;
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //ChildNode
@@ -35,6 +36,7 @@ public class LoserScoreBox : Control
         this.score = player.score;
         this.perfectBeats = player.GetPerBeat();
         this.missedBeats = player.GetMisBeat();
+        this.prtrtTexture = player.GetPortrait();
     }
     public override void _Ready()
     {
@@ -42,6 +44,7 @@ public class LoserScoreBox : Control
         portrait = banner.GetChild(0) as Sprite;
 
         banner.Texture = bnrTexture;
+        banner.GetChild<Sprite>(0).Texture = prtrtTexture;
 
         banner.GetChild<Label>(1).Text = name;
         banner.GetChild<Label>(2).Text = "Score : " + score;

@@ -9,9 +9,13 @@ anchor_bottom = 1.0
 script = ExtResource( 2 )
 
 [node name="Banner" type="Sprite" parent="."]
+z_index = 66
+z_as_relative = false
 centered = false
 
 [node name="Portait" type="Sprite" parent="Banner"]
+position = Vector2( 96, 96 )
+scale = Vector2( 2, 2 )
 
 [node name="Name" type="Label" parent="Banner"]
 margin_left = 192.0
@@ -20,6 +24,7 @@ margin_right = 356.0
 margin_bottom = 128.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="Score" type="Label" parent="Banner"]
 margin_left = 192.0
@@ -28,6 +33,7 @@ margin_right = 357.0
 margin_bottom = 221.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="PerfectBeats" type="Label" parent="Banner"]
 margin_left = 448.0
@@ -36,6 +42,7 @@ margin_right = 470.0
 margin_bottom = 141.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="MissedBeats" type="Label" parent="Banner"]
 margin_left = 448.0
@@ -44,3 +51,4 @@ margin_right = 462.0
 margin_bottom = 229.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )

@@ -165,6 +165,7 @@ public class Kyomira1 : Level
             if (texture.state == 2) texture.ChangeLighting(1);
             else texture.ChangeLighting(2);
         }
+        base.ClassicEndCond();
     }
 
 }
