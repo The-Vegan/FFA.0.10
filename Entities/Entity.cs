@@ -57,7 +57,7 @@ public abstract class Entity : AnimatedSprite
 
     public short GetHealthPoint() { return healthPoint; }
 
-    protected bool isValidTarget = true;//Clones and stuff don't give you points for hitting them
+    public bool isValidTarget = true;//Clones and stuff don't give you points for hitting them
 
     protected short blunderBar = 0;
     protected short itemBar = 0;

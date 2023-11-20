@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public class EndScreen : CanvasLayer
 {
@@ -28,29 +29,29 @@ public class EndScreen : CanvasLayer
             byte gap = (byte)(allPlayers.Length >> 1);
 
             while (gap != 0)
-            {
+    {
                 Entity tempEntity;
 
                 for (byte i = 0; i < allPlayers.Length - gap; i++)
                 {
 
                     if (allPlayers[i].score > allPlayers[i + gap].score)
-                    {
+        {
                         //Swap
                         tempEntity = allPlayers[i];
                         allPlayers[i] = allPlayers[i + gap];
                         allPlayers[i + gap] = tempEntity;
                     }
-                }
+        }
 
                 gap--;
             }
         }//CombSort
-        
+
 
         players = allPlayers;
-        
-        
+
+
     }
 
     private void SetCanvas(byte podium, Entity entity)
@@ -67,7 +68,7 @@ public class EndScreen : CanvasLayer
             listLength++;
         }
         else//Not in top 3 displayed
-        {
+    {
             LoserScoreBox lsb = loadedLoserScoreBox.Instance() as LoserScoreBox;
             lsb.Init(podium, entity);
             loserContainer.AddChild(lsb,true);
@@ -97,7 +98,7 @@ public class EndScreen : CanvasLayer
                                         new Pirate(), new Blahaj(), new Monstropis() };
 
             for(int ii = 0; ii < players.Length; ii++)
-            {
+        {
                 players[ii].DebugSetNameTag("Dbg wnr" + (ii + 1));
                 players[ii].score = (short)(10 - ii);
             }
@@ -117,7 +118,7 @@ public class EndScreen : CanvasLayer
                 podium = (byte)(i + 1);
                 if (podium > 4) podium = 4;
                     }
-            
+
             SetCanvas(podium, players[i]);
         }
 
