@@ -104,8 +104,13 @@ public partial class Global : Node
     {
         PackedScene menu = GD.Load<PackedScene>("res://UIAndMenus/MainMenu.tscn");
         MainMenu loadedMenu = menu.Instance() as MainMenu;
-        GetTree().Root.AddChild(loadedMenu);
+        Viewport root = GetTree().Root;
+
+        activeScene.QueueFree();
         SetActiveScene(loadedMenu);
+        
+       
+        root.AddChild(loadedMenu);
     }
 
     public void PostCountdownProcedure(HostServer sender)//Called from beginLaunch

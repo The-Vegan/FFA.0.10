@@ -4,20 +4,12 @@ using System;
 public class FinalScoreBox : Control
 {
 
-    //Images
-    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-
-    protected String bannerPath;
-
-    //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    //Images
-
     //Variables
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
-    protected String name = "default";
-    protected short score = -1;
-    protected short perfectBeats = 621;
-    protected short missedBeats = 5;//mister beast
+    protected String name;
+    protected short score;
+    protected short perfectBeats;
+    protected short missedBeats;//mister beast
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //Variables
@@ -25,6 +17,8 @@ public class FinalScoreBox : Control
     //Child Nodes
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     protected Sprite banner;
+    protected Texture bnrTexture;
+    protected Texture prtrtTexture;
     protected Sprite portrait;
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //ChildNode
@@ -34,33 +28,33 @@ public class FinalScoreBox : Control
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     public void Init(byte podium,Entity player)
     {
-        switch (podium)
-        {
-            case 1://TODO : IMPLEMENT BANNER PATHS (I NEED THE TEXTURES FIRST)
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
+        String folder = "res://UIAndMenus/EndScreen/Textures/";
 
-            default: throw new ArgumentException();
-        }
+        bnrTexture = GD.Load(folder + "w" + podium + ".png") as Texture;
 
+
+        
         this.name = player.GetNametag();
+        this.score = player.score;
         this.perfectBeats = player.GetPerBeat();
         this.missedBeats = player.GetMisBeat();
-
-
+        this.prtrtTexture = player.GetPortrait();
+        GD.Print("[FanalScoreBox][Init] score = " + score + " ; P = " + perfectBeats + " ; M = " + missedBeats);
     }
     public override void _Ready()
     {
-        banner = this.GetChild(0) as Sprite;
-        portrait = banner.GetNode("Portrait") as Sprite;
+        GD.Print("[FanalScoreBox] score = " + score + " ; P = " + perfectBeats + " ; M = " + missedBeats);
 
-        banner.GetNode<Label>("Name").Text = name;
-        banner.GetNode<Label>("Score").Text = score.ToString();
-        banner.GetNode<Label>("PerfectBeats").Text = perfectBeats.ToString();
-        banner.GetNode<Label>("MissedBeats").Text = missedBeats.ToString();
+        banner = this.GetChild(0) as Sprite;
+        portrait = banner.GetChild(0) as Sprite;
+
+        banner.Texture = bnrTexture;
+        banner.GetChild<Sprite>(0).Texture = prtrtTexture;
+
+        banner.GetChild<Label>(1).Text = name;
+        banner.GetChild<Label>(2).Text = "Score : " + score;
+        banner.GetChild<Label>(3).Text = "Perfects : " + perfectBeats;
+        banner.GetChild<Label>(4).Text = "Missed : " + missedBeats;
 
     }
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\

@@ -55,7 +55,7 @@ namespace FFA.Empty.Empty.Network.Server
                 
 
             }
-            
+            listener.Stop();
         }
         private void ListeningThread()
         {

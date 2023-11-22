@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://UIAndMenus/EndScreen/EndScreenLabels.tres" type="Theme" id=1]
 [ext_resource path="res://UIAndMenus/EndScreen/FinalScoreBox.cs" type="Script" id=2]
-[ext_resource path="res://UIAndMenus/CharacterButton/RandomPortraint.png" type="Texture" id=3]
 
 [node name="FinalScoreBox" type="Control"]
 anchor_right = 1.0
@@ -10,38 +9,46 @@ anchor_bottom = 1.0
 script = ExtResource( 2 )
 
 [node name="Banner" type="Sprite" parent="."]
+z_index = 66
+z_as_relative = false
+centered = false
 
-[node name="Portrait" type="Sprite" parent="Banner"]
-position = Vector2( 70, 70 )
+[node name="Portait" type="Sprite" parent="Banner"]
+position = Vector2( 96, 96 )
 scale = Vector2( 2, 2 )
-texture = ExtResource( 3 )
 
 [node name="Name" type="Label" parent="Banner"]
-margin_left = 150.0
-margin_right = 136.0
-margin_bottom = 104.0
+margin_left = 192.0
+margin_top = 40.0
+margin_right = 356.0
+margin_bottom = 128.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="Score" type="Label" parent="Banner"]
-margin_left = 150.0
-margin_top = 64.0
-margin_right = 190.0
-margin_bottom = 168.0
+margin_left = 192.0
+margin_top = 104.0
+margin_right = 357.0
+margin_bottom = 221.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="PerfectBeats" type="Label" parent="Banner"]
-margin_top = 140.0
-margin_right = 40.0
-margin_bottom = 244.0
+margin_left = 448.0
+margin_top = 40.0
+margin_right = 470.0
+margin_bottom = 141.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 
 [node name="MissedBeats" type="Label" parent="Banner"]
-margin_left = 256.0
-margin_top = 140.0
-margin_right = 512.0
-margin_bottom = 300.0
+margin_left = 448.0
+margin_top = 104.0
+margin_right = 462.0
+margin_bottom = 229.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )

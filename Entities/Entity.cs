@@ -16,9 +16,11 @@ public abstract class Entity : AnimatedSprite
 
     public byte team = 0;
     public byte id;
-
+    public short score = 0;
     protected String nameTag;
     public String GetNametag() { return nameTag; }
+
+    public void DebugSetNameTag(String n) { nameTag = n; }
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //DEPENDENCIES
@@ -308,6 +310,7 @@ public abstract class Entity : AnimatedSprite
 
     }
     protected abstract void LoadAllTextures();
+    public abstract Texture GetPortrait();
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
     //GESTION DES ANIMATIONS
 
@@ -359,7 +362,7 @@ public abstract class Entity : AnimatedSprite
         }
 
         pos = Vector2.NegOne;
-        this.Visible = false;
+        this.SetSelfModulate(Color.Color8(0,0,0,0));
 
         isDead = true;
 
@@ -434,5 +437,19 @@ public abstract class Entity : AnimatedSprite
         this.blunderBar = packet.blunderbar;
         this.itemBar = packet.itembar;
         this.itemID = packet.heldItemID;
+    }
+
+    public static Entity[] StripNonPlayerEntities(List<Entity> allEntities)
+    {
+        for(short i = 0; i < allEntities.Count; i++)
+        {
+            if (!allEntities[i].isValidTarget)
+            {
+                allEntities.RemoveAt(i);
+                i--;
+            }
+        }
+        return allEntities.ToArray();
+
     }
 }

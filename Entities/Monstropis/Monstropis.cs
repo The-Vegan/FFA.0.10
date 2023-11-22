@@ -4,7 +4,10 @@ using System.Collections.Generic;
 
 public class Monstropis : Entity
 {
-
+    public override Texture GetPortrait()
+    {
+        return GD.Load("res://Entities/Monstropis/MonstropisPortrait.png") as Texture;
+    }
     public override void _Ready()
     {
         base._Ready();

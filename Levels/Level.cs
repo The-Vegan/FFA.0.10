@@ -20,6 +20,8 @@ public abstract class Level : TileMap
     protected Timer timer;
     protected Camera2D camera;
     protected PackedScene hudScene = GD.Load<PackedScene>("res://UIAndMenus/HUD/Hud.tscn");
+    [Export]
+    protected PackedScene loadedEndScreen;
 
     protected ControllerPlayer controllerPlayer;
 
@@ -161,25 +163,25 @@ public abstract class Level : TileMap
                 this.Connect("checkEndingCondition", this, "ClassicEndCond");
                 teamMode = false;
                 InitSpawnPointsClasssic();
-                GD.Print("[Level] Classic");
+                GD.Print("[Level] Classic endCond Connected");
                 break;
             case 1:
                 this.Connect("checkEndingCondition", this, "TeamEndCond");
                 teamMode = true;
                 InitSpawnPointsTeam(numberOfTeams);
-                GD.Print("[Level] Team");
+                GD.Print("[Level] Team endCond Connected");
                 break;
             case 2:
                 this.Connect("checkEndingCondition", this, "CTFEndCond");//CTF NOT CODED
                 teamMode = true;
                 InitSpawnPointsCTF(numberOfTeams);
-                GD.Print("[Level] CTF");
+                GD.Print("[Level] CTF endCond Connected");
                 break;
             case 3:
                 this.Connect("checkEndingCondition", this, "SiegeEndCond");//SACKING NOT CODED
                 teamMode = true;
                 InitSpawnPointsSiege();
-                GD.Print("[Level] Siege");
+                GD.Print("[Level] Siege endCond Connected");
                 break;
         }
     }
@@ -203,9 +205,10 @@ public abstract class Level : TileMap
         allControllers[0] = cp;
         this.AddChild(cp);
 
-        mainPlayer.AddChild(hud);
+        
         mainPlayer.Connect("noteHiter", hud, "HitNote");
         mainPlayer.AddChild(camera);
+        camera.AddChild(hud);
         camera.Current = true;
 
         if (global.isMultiplayer)
@@ -364,7 +367,7 @@ public abstract class Level : TileMap
                 {
                     entity.Moved(spawnpoints[randomTile]);
                     await ToSignal(entity.GetNode("Tween"), "tween_completed");
-                    entity.Visible = true;
+                    entity.SetSelfModulate(Color.Color8(255,255,255,255));
                     break;
                 }
             }
@@ -376,7 +379,7 @@ public abstract class Level : TileMap
                 {
                     entity.Moved(TeamSpawnPoints[entity.team][randomTile]);
                     await ToSignal(entity.GetNode("Tween"), "tween_completed");
-                    entity.Visible = true;
+                    entity.SetSelfModulate(Color.Color8(255, 255, 255, 255));
                     break;
                 }
             }
@@ -462,6 +465,7 @@ public abstract class Level : TileMap
             {
                 if (atk.posToTiles[entity.pos].GetDamage() == 0) continue;
                 entity.Damaged(atk);
+
             }
         }
     }
@@ -472,15 +476,27 @@ public abstract class Level : TileMap
     //ENDING CONDITION
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
 
-    protected void ClosingArena()
+    protected async void ClosingArena()
     {
-        GD.Print("[Level] Hello World");
+        EndScreen es = loadedEndScreen.Instance() as EndScreen;
+        
+        Entity[] valids = Entity.StripNonPlayerEntities(allEntities);
+        if (es == null) return;
+        es.Init(valids);
+
+        await ToSignal(GetTree().CreateTimer(2), "timeout");
+        timer.Stop();
+        (es.GetChild(0) as Node2D).Position = new Vector2(0, -864);
+        
+        camera.AddChild(es);
+
     }
 
     protected virtual void ClassicEndCond()
     {
-        if(globalBeat > 200)
+        if (globalBeat == 200)
         {
+            GD.Print("[Level][ENDCOND] ENDCOND FIRED");
             ClosingArena();
         }
     }
@@ -534,34 +550,9 @@ public abstract class Level : TileMap
 
     protected void UpdateAllEntities()
     {
-        SortAllEntities();
-
         for (int i = 0;i < allEntities.Count; i++)
         {
             allEntities[i].BeatUpdate();
-        }
-    }
-
-    protected void SortAllEntities()//CombSort
-    {
-        int gap = allEntities.Count >> 1;
-
-        while(gap != 0)
-        {
-            Entity tempEntity;
-
-            for(int i = 0;i < allEntities.Count - gap; i++)
-            {
-                
-                if(Math.Abs(allEntities[i].timing - (1f / 6f)) > Math.Abs( allEntities[i + gap].timing - (1f / 6f)))//If entity in front has bigger score(worse)
-                {
-                    //Swap
-                    tempEntity = allEntities[i];
-                    allEntities[i] = allEntities[i + gap];
-                    allEntities[i + gap] = tempEntity;
-                }
-            }
-            gap--;
         }
     }
 

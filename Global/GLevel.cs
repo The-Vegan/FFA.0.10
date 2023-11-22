@@ -47,33 +47,33 @@ public class GLevel : Node
 
     public ushort LoadTexture(String texturePath)
     {
-        Texture loaded = GD.Load(texturePath) as Texture;
+        Texture loaded = GD.Load(texturePath) as Texture;//Loads before Mutex grab so that threading has a purpose
 
-        if (loaded == null) return 0;
-        for(ushort i = 0; i < loadedAttackTextures.Length; i++)
+        if (textureAdderMutex.WaitOne(100))
         {
-            if (loaded == loadedAttackTextures[i]) return i;
+            if (loaded == null) { textureAdderMutex.ReleaseMutex(); return 0; }//Releases mutex before returning default.png
+            for (ushort i = 0; i < loadedAttackTextures.Length; i++)
+            {
+                if (loaded == loadedAttackTextures[i]) { textureAdderMutex.ReleaseMutex(); return i; }//Releases mutex before returning the TextureIdx
+            }
+            AddTexture(loaded);
+
+            if (global.hasServer) global.Network.server.SendPathLoad(texturePath);
+            ushort retVal = (ushort)(loadedAttackTextures.Length - 1);//Saves index before releasing Mutex
+            textureAdderMutex.ReleaseMutex();
+            return retVal;
         }
-        AddTexture(loaded);
-        GD.Print("[Glevel] Added texture : " + (loadedAttackTextures.Length - 1));
-
-        if (global.hasServer) global.Network.server.SendPathLoad(texturePath);
-
-        return (ushort)(loadedAttackTextures.Length -1);
+        
+        GD.Print("[GLevel] Failed to aquire TextureLoading Mutex before Timeout");
+        return 0;
     }
 
     private void AddTexture(Texture loaded)
     {
-        textureAdderMutex.WaitOne();
-        
         Texture[] arr = new Texture[loadedAttackTextures.Length + 1];
-        for (ushort i = 0; i < loadedAttackTextures.Length; i++) arr[i] = loadedAttackTextures[i];
+        Array.Copy(loadedAttackTextures, arr, loadedAttackTextures.Length);
         arr[loadedAttackTextures.Length] = loaded;
         loadedAttackTextures = arr;
-
-        textureAdderMutex.ReleaseMutex();
-
-        
     }
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
     //ATTACK TEXTURES
