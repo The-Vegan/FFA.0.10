@@ -281,34 +281,43 @@ public class Attack : Node2D
     protected void UpdateDamageTiles()
     {
         int numberOfTiles = this.GetChildCount();
+        posToTiles.Clear();
+
+        List<DamageTile> ldt = new List<DamageTile> ();
         for (int i = 0; i < numberOfTiles; i++)
         {
             DamageTile dt = this.GetChild(i) as DamageTile;
-            if (dt == null) continue;
+            if (dt != null) ldt.Add(dt);
+        }
+        {//CombSort
+            byte gap = (byte)(ldt.Count >> 1);
 
-            if (posToTiles.ContainsKey(dt.GetCoords()))
+            while (gap != 0)
             {
-                if(dt.GetDamage() > posToTiles[dt.GetCoords()].GetDamage())
+                DamageTile tempTile;
+
+                for (byte i = 0; i < ldt.Count - gap; i++)
                 {
-                    posToTiles[dt.GetCoords()] = dt;
+                    if (ldt[i].GetDamage() < ldt[i + gap].GetDamage())
+                    {
+                        //Swap
+                        tempTile = ldt[i];
+                        ldt[i] = ldt[i + gap];
+                        ldt[i + gap] = tempTile;
+                    }
                 }
+                gap--;
             }
-            else
-            {
-                posToTiles.Add(dt.GetCoords(), dt);
-            }
-
-        }
-    }
-    public void RemoveDamageTiles(DamageTile removedTile)
-    {
-        if(posToTiles.ContainsKey(removedTile.GetCoords()))
+        }//CombSort
         {
-            if (posToTiles[removedTile.GetCoords()] == removedTile)
-                posToTiles.Remove(removedTile.GetCoords());
-            //Might create ghostTiles (unlikely)
+            int length = ldt.Count;
+            for(int i = 0;i < length; i++)
+            {
+                if (posToTiles.ContainsKey(ldt[i].GetCoords())) continue;
+                posToTiles.Add(ldt[i].GetCoords(), ldt[i]);
+            }
         }
-
+        
     }
 
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
