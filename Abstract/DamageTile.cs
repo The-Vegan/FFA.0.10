@@ -43,7 +43,6 @@ public class DamageTile : AnimatedSprite
     
     public void OnAnimationFinished()//Called through Signal
     {
-        if(damage != 0) source.RemoveDamageTiles(this);
         this.QueueFree();
     }
 

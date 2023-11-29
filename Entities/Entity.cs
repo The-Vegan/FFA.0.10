@@ -65,6 +65,7 @@ public abstract class Entity : AnimatedSprite
     public sbyte GetBlunder() { return (sbyte)blunderBar; }
     public sbyte GetItembar() { return (sbyte)itemBar; }
     protected List<Attack> damagedBy;
+    protected List<Attack> midBeatDamaged = new List<Attack>();
 
     protected String atkFolder;
     protected byte[] animPerBeat;
@@ -317,29 +318,34 @@ public abstract class Entity : AnimatedSprite
     //GESTION DES DEGATS
     //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\\
 
-    public void Damaged( Attack attack)
+    public void Damaged(Attack attack)
     {
         Entity source = attack.GetSource();
         if (source == this) return;
         if (source.team == this.team) return;
         //If damage is 0, this will not be called
-        if (!damagedBy.Contains(attack))
+        if (damagedBy.Contains(attack)) return;
+        if (midBeatDamaged.Contains(attack)) return;
+        if (attack.posToTiles[pos] == null) return;
+
+        damagedBy.Add(attack);
+        
+        short damage = attack.posToTiles[pos].GetDamage();
+       
+        healthPoint -= damage;
+       
+        damagePlayer.Damage(map.GetTime(), damage);
+       
+        if (isValidTarget)
         {
-
-            damagedBy.Add(attack);
-
-            short damage = attack.posToTiles[pos].GetDamage();
-
-            healthPoint -= damage;
-
-            damagePlayer.Damage(map.GetTime(), damage);
-
-            if (isValidTarget)
-            {
-                source.HitSomeone((short)((damage << 2) + 5));
-            }
-
+            source.HitSomeone((short)((damage << 2) + 5));
         }
+
+        
+    }
+    public void MidBeatDamage(Attack attack)
+    {
+        midBeatDamaged.Add(attack);
     }
     public void CheckDeath()
     {
@@ -417,8 +423,11 @@ public abstract class Entity : AnimatedSprite
         packet = 0;
         midBeatInterrupted = false;
         actedThisBeat = false;
-        damagedBy = new List<Attack>();
 
+        damagedBy = midBeatDamaged;
+        midBeatDamaged.Clear();
+        //MidBeatDamaged carries attacks that have been declared this beat.
+        //The invincibility carries untill the next beat (but no more)
     }
 
     public void Sync(FFA.Empty.Empty.Network.Client.SyncEntityPacket packet)

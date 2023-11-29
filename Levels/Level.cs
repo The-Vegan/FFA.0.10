@@ -450,6 +450,7 @@ public abstract class Level : TileMap
             {
                 if (atk.posToTiles[e.pos].GetDamage() == 0) continue;
                 e.Damaged(atk);
+                e.MidBeatDamage(atk);
             }
         }
     }

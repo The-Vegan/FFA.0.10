@@ -29,20 +29,20 @@ public class EndScreen : CanvasLayer
             byte gap = (byte)(allPlayers.Length >> 1);
 
             while (gap != 0)
-    {
+            {
                 Entity tempEntity;
 
                 for (byte i = 0; i < allPlayers.Length - gap; i++)
                 {
 
                     if (allPlayers[i].score > allPlayers[i + gap].score)
-        {
+                    {
                         //Swap
                         tempEntity = allPlayers[i];
                         allPlayers[i] = allPlayers[i + gap];
                         allPlayers[i + gap] = tempEntity;
                     }
-        }
+                }
 
                 gap--;
             }
