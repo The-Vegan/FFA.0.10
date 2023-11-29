@@ -178,8 +178,6 @@ public class Pirate : Entity
     {
         if ((packetToParse >> 4) == (packetToParse & 0b1111))//move and Attack At the same time (no rest/items)
         {
-            GD.Print("[Pirate] DashAtk");
-
             short parsedPacket = 0;
             if ((packetToParse & 0b0001) != 0) parsedPacket = 17;
             else if ((packetToParse & 0b0010) != 0) parsedPacket = 34;
@@ -254,7 +252,6 @@ public class Pirate : Entity
         if (cooldown != 0) return;
         if (stun != 0) return;
         packet |= p;
-        GD.Print("[Pirate] Packet Set");
         new System.Threading.Thread(async delegate ()
         {
 

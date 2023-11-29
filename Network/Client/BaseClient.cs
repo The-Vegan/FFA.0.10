@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 
 
+
 namespace FFA.Empty.Empty.Network.Client
 {
     public class BaseClient
@@ -70,6 +71,7 @@ namespace FFA.Empty.Empty.Network.Client
             }
             ClientDisconnectedEvent(this);
         }//Listening thread
+
 
         public void SendDataToServer(byte[] data)
         {

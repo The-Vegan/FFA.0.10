@@ -1,0 +1,1 @@
+Protocole : [SET_CLIENT_OR_ENTITY_ID] : ClientID = 1 : CharacterID = 0

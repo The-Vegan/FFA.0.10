@@ -310,19 +310,16 @@ namespace FFA.Empty.Empty.Network.Server
             if (texturePath == null) return;
             if (texturePath.Length == 0) return;
             if (texturePath.Length > ushort.MaxValue) return;
+            
+            byte[] output = new byte[3 + texturePath.Length * 2];
+            output[0] = LOAD_ATK_TEXTURE;
+            output[1] = (byte)(texturePath.Length >> 8);
+            output[2] = (byte)texturePath.Length;
 
-            new System.Threading.Thread(delegate () 
-            {
-                byte[] output = new byte[3 + texturePath.Length * 2];
-                output[0] = LOAD_ATK_TEXTURE;
-                output[1] = (byte)(texturePath.Length >> 8);
-                output[2] = (byte)texturePath.Length;
+            byte[] strTarr = Encoding.Unicode.GetBytes(texturePath);
+            for (int i = 0; i < strTarr.Length; i++) output[i + 3] = strTarr[i];
 
-                byte[] strTarr = Encoding.Unicode.GetBytes(texturePath);
-                for (int i = 0; i < strTarr.Length; i++) output[i + 3] = strTarr[i];
-
-                server.SendDataOnAllStreams(output);
-            }).Start();
+            server.SendDataOnAllStreams(output);
         }
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\\
         //Level

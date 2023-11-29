@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Text;
 
 namespace FFA.Empty.Empty.Network.Client
 {
@@ -67,6 +68,10 @@ namespace FFA.Empty.Empty.Network.Client
 
         private void DataRecived(object sender, byte[] data, NetworkStream stream)
         {
+
+#if DEBUG
+            new System.Threading.Thread(delegate () { LogInTxtFile(data, "log.txt"); }).Start();
+#endif
             if (data[0] == PING)
             {
                 client.SendDataToServer(data);
@@ -103,6 +108,9 @@ namespace FFA.Empty.Empty.Network.Client
                             break;
                         case BLUNDERED_BY_SERVER:
                             GD.Print("[LocalClient] Server fliped you off");
+                            break;
+                        case LOAD_ATK_TEXTURE:
+
                             break;
                         default:
                             GD.Print("[LocalClient] Error : Unkown protocol : " + data[0]);
@@ -224,5 +232,123 @@ namespace FFA.Empty.Empty.Network.Client
         public void Disconnect() { client.Disconnect(); connected = false; GD.Print("[LocalClient] Disconected"); }
 
         internal void SignalReady() { byte[] signal = new byte[8_192]; signal[0] = CLIENT_READY; signal[1] = clientID; client.SendDataToServer(signal); }
+
+
+
+#if DEBUG
+        System.Threading.Mutex log = new System.Threading.Mutex();
+        private void LogInTxtFile(byte[] byteStream,String path)
+        {
+            if (log.WaitOne(1000))
+            {
+                try
+                {
+                  
+                    
+
+                    System.IO.FileInfo file = new System.IO.FileInfo(path);
+                    System.IO.FileStream fs;
+                    if (!file.Exists)
+                    {
+                        fs = file.Create();
+                    }
+                    
+                    String logTxt = System.IO.File.ReadAllText(path);
+                    switch (byteStream[0])
+                    {
+                        case PING:
+                            logTxt += "Protocole : [PING] : ";
+                            float ping = BitConverter.ToSingle(byteStream, 1);
+                            logTxt += (ping + "ms");
+                            break;
+
+
+                        /*CLIENT -> SERVER*/
+                        case MOVE_PACKET:       logTxt += "Protocole : [MOVE_PACKET] : ERROR, Should not be recieved"; break;
+                        case SET_CHARACTER:     logTxt += "Protocole : [MOVE_PACKET] : ERROR, Should not be recieved"; break;
+                        case CLIENT_READY:      logTxt += "Protocole : [CLIENT_READY] : ERROR, Should not be recieved"; break;
+                        /*SERVER -> CLIENT*/
+                        case SERVER_FULL:       logTxt += "Protocole : [SERVER_FULL]"; break;
+                        case GAME_LAUNCHED:     logTxt += "Protocole : [GAME_LAUNCHED]"; break;
+                        //Pre launch
+                        case ABOUT_TO_LAUNCH:   logTxt += "Protocole : [ABOUT_TO_LAUNCH]"; break;
+                        case ABORT_LAUNCH:      logTxt += "Protocole : [ABORT_TO_LAUNCH]"; break;
+                        case LAUNCH:            logTxt += "Protocole : [LAUNCH]"; break;
+                        case SET_CLIENT_OR_ENTITY_ID:
+                            logTxt += "Protocole : [SET_CLIENT_OR_ENTITY_ID] : ClientID = ";
+                            logTxt += (byteStream[1] + " : CharacterID = " + byteStream[2]);
+                            break;
+                        case SEND_NAME_LIST:
+                            logTxt += "Protocole : [SEND_NAME_LIST] ";
+                            PlayerInfo[] pi = PlayerInfo.DeserialiseInfoArray(byteStream);
+
+                            for (byte i = 0; i < pi.Length; i++)
+                            {
+                                if (pi[i] == null)
+                                {
+                                    logTxt += ": *Empty* : ";
+                                    continue;
+                                }
+                                logTxt += pi[i].ToString();
+                            }
+                            break;
+                        case SET_LEVEL_CONFIG:      logTxt += "Protocole : [SET_LEVEL_CONFIG]"; break;
+                        //Post launch
+                        case GAME_OVER:             logTxt += "Protocole : [GAME_OVER]"; break;
+                        case GAME_SOON_OVER:        logTxt += "Protocole : [GAME_SOON_OVER]"; break;
+                        case SET_ACTION:
+                            logTxt += "Protocole : [SET_ACTION] : Entity ";
+                            logTxt += (byteStream[1] + " : Packet : ");
+                            logTxt += Convert.ToInt32((byteStream[2]).ToString(), 2).ToString();
+                            logTxt += Convert.ToInt32((byteStream[3]).ToString(), 2).ToString();
+                            float timing = BitConverter.ToSingle(byteStream, 4);
+                            logTxt += "Timing : " + timing;
+                            break;
+                        case SYNC_ENTITIES:
+                            logTxt += "Protocole : [SYNC_ENTITIES] : ";
+                            List<SyncEntityPacket> sync = SyncEntityPacket.ToSyncPacketList(byteStream);
+
+                            for(byte i = 0; i < sync.Count; i++)
+                            {
+                                logTxt += "Entity " + sync[i].entityID + " , ";
+                                logTxt += "Coordinates" + sync[i].position.x + "." + sync[i].position.y + " , ";
+                                logTxt += "HP" + sync[i].health + " , ";
+                                logTxt += "Held Item" + sync[i].heldItemID + " , ";
+                                logTxt += "Item Bar" + sync[i].itembar + " , ";
+                                logTxt += "Blunder" + sync[i].blunderbar + " : ";
+
+                            }
+
+                            break;
+                        case ITEM_GIVEN_BY_SERVER: logTxt = "Protocole : [ITEM_GIVEN_BY_SERVER]"; break;
+                        case BLUNDERED_BY_SERVER: logTxt = "Protocole : [BLUNDERED_BY_SERVER]"; break;
+                        case LOAD_ATK_TEXTURE:
+                            logTxt += "Protocole : [LOAD_ATK_TEXTURE] : ";
+
+                            ushort len = (ushort)((byteStream[1] << 8) + byteStream[2]);
+                            String arr2str = Encoding.Unicode.GetString(byteStream, 3, len);
+                            logTxt += arr2str;
+                            break;
+                    }//End of switch(byteStream[0])
+                    logTxt += "\n";
+                    fs = file.OpenWrite();
+                    byte[] binTxt = Encoding.UTF8.GetBytes(logTxt);
+                    fs.Write(binTxt, 0, binTxt.Length);
+
+                    fs.Close();
+
+
+                }
+                catch(Exception e){ GD.Print("[LocalClient][Log] Exception Caught : " + e); }
+                log.ReleaseMutex();
+                return;
+            }
+            GD.Print("NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE NOPE");
+        }
+
+
+
+#endif
+
     }
 }
